@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
 import axios from 'axios';
 import { PencilIcon, CalendarIcon, ChevronRightIcon, ChatBubbleLeftIcon, HeartIcon, EyeIcon } from '@heroicons/react/24/solid';
-import SearchBar from './SearchBar'; 
+import SearchBar from '../Search/SearchBar'; 
 interface PostList {
   id: string;
   title: string;
@@ -41,13 +41,15 @@ interface Like {
 
 const PostList: React.FC = () => {
   const [posts, setPosts] = useState<PostList[]>([]);
+  const [filteredPosts, setFilteredPosts] = useState<PostList[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
   const [replies, setReplies] = useState<Reply[]>([]);
   const [likes, setLikes] = useState<Like[]>([]);
   const [modalVisible, setModalVisible] = useState(false); // State för att visa modal
   const [likedPostId, setLikedPostId] = useState<string | null>(null); // För att hålla reda på vilket inlägg som gillades
   const [modalMessage, setModalMessage] = useState<string>(''); // Meddelande för modalen
-
+  const [searchTerm, setSearchTerm] = useState<string>(''); // State för söktermen
+  const [searchType, setSearchType] = useState('content'); 
   const getIpAddress = async () => {
     try {
       const response = await axios.get('https://api.ipify.org?format=json');
@@ -68,6 +70,7 @@ const PostList: React.FC = () => {
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
         setPosts(sortedPosts || []);
+        setFilteredPosts(sortedPosts || []); 
       }
     };
 
@@ -105,10 +108,29 @@ const PostList: React.FC = () => {
     fetchReplies();
     fetchLikes();
   }, []);
+  const handleSearch = (term: string) => {
+    setSearchTerm(term); // Uppdatera söktermen
+    if (!term) {
+      setFilteredPosts(posts); // Om söktermen är tom, visa alla inlägg
+    } else {
+      const filtered = posts.filter((post) => {
+        switch (searchType) {
+          case 'category':
+            return post.categories.some((category) => category.toLowerCase().includes(term.toLowerCase()));
+          case 'tag':
+            return post.tags.some((tag) => tag.toLowerCase().includes(term.toLowerCase()));
+          default:
+            return post.title.toLowerCase().includes(term.toLowerCase()) || post.content.toLowerCase().includes(term.toLowerCase());
+        }
+      });
+      setFilteredPosts(filtered); // Uppdatera de filtrerade inläggen
+    }
+  };
 
   const getExcerpt = (content: string) => {
     return content.length > 150 ? content.substring(0, 150) + '...' : content;
   };
+  
 
   const getCommentCount = (postId: string) => {
     const postComments = comments.filter((comment) => comment.post_id === postId);
@@ -166,8 +188,34 @@ const PostList: React.FC = () => {
         <h1 className="text-4xl font-bold text-center text-cyan-500 mb-8">
           Posts
         </h1>
+        <div className="mb-4 flex justify-center space-x-4">
+          <button 
+            className={`px-4 py-2 rounded ${searchType === 'content' ? 'bg-cyan-600' : 'bg-gray-700'}`}
+            onClick={() => setSearchType('content')}
+          >
+            Content
+          </button>
+          <button 
+            className={`px-4 py-2 rounded ${searchType === 'category' ? 'bg-cyan-600' : 'bg-gray-700'}`}
+            onClick={() => setSearchType('category')}
+          >
+            Category
+          </button>
+          <button 
+            className={`px-4 py-2 rounded ${searchType === 'tag' ? 'bg-cyan-600' : 'bg-gray-700'}`}
+            onClick={() => setSearchType('tag')}
+          >
+            Tags
+          </button>
+        </div>
+        <SearchBar onSearch={handleSearch} />
+        {filteredPosts.length === 0 && searchTerm && (
+  <p className="text-center text-gray-400 mt-4">
+    No posts found for "<span className="font-bold">{searchTerm}</span>"
+  </p>
+)}
         <ul className="space-y-8">
-          {posts.map((post) => (
+          {filteredPosts.map((post) => (
             <li
               key={post.id}
               className="p-6 bg-gradient-to-r from-gray-800 via-gray-900 to-black rounded-xl shadow-lg transform hover:scale-105 transition-all duration-300"

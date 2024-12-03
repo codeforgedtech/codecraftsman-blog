@@ -52,8 +52,45 @@ const SinglePost: React.FC = () => {
   const [replies, setReplies] = useState<Reply[]>([]);
   const [showComments] = useState(true);
   const [expandedComments, setExpandedComments] = useState<string[]>([]);
-  const [likesCount, setLikesCount] = useState<number>(0); // Add a state for likes count
+  const [likesCount, setLikesCount] = useState<number>(0); 
+  const [newComment, setNewComment] = useState('');
+  const [commentName, setCommentName] = useState('');
+  const [commentEmail, setCommentEmail] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
+  const handleCommentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!newComment || !commentName || !commentEmail) {
+      setErrorMessage('Alla fält måste fyllas i!');
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase.from('comments').insert([
+        {
+          post_id: post?.id,
+          content: newComment,
+          user_name: commentName,
+          user_email: commentEmail,
+        },
+      ]);
+
+      if (error) {
+        console.error('Error adding comment:', error.message);
+        setErrorMessage('Ett fel uppstod när kommentaren skickades.');
+      } else {
+        setNewComment('');
+        setCommentName('');
+        setCommentEmail('');
+        setErrorMessage('');
+        fetchCommentsAndReplies(post!.id); // Uppdatera kommentarlistan
+      }
+    } catch (err) {
+      console.error('Unexpected error:', err);
+      setErrorMessage('Ett oväntat fel inträffade.');
+    }
+  };
   useEffect(() => {
     const fetchPostBySlug = async () => {
       if (slug) {
@@ -249,8 +286,57 @@ const SinglePost: React.FC = () => {
                   </button>
                   {expandedComments.includes(comment.id) && renderReplies(comment.id)}
                 </div>
-              </div>
+                </div>
             ))}
+
+            {/* Kommentarformulär */}
+            <form onSubmit={handleCommentSubmit} className="mt-6">
+              <h4 className="text-lg font-semibold mb-4">Add Comments</h4>
+              {errorMessage && (
+                <p className="text-red-500 text-sm mb-2">{errorMessage}</p>
+              )}
+              <div className="mb-4">
+                <label className="block text-gray-300 mb-1" htmlFor="name">
+                  Name
+                </label>
+                <input
+                  id="name"
+                  type="text"
+                  value={commentName}
+                  onChange={(e) => setCommentName(e.target.value)}
+                  className="w-full p-2 rounded bg-gray-700 text-white border border-cyan-500"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-300 mb-1" htmlFor="email">
+                  E-mail
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  value={commentEmail}
+                  onChange={(e) => setCommentEmail(e.target.value)}
+                  className="w-full p-2 rounded bg-gray-700 text-white border border-cyan-500"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-300 mb-1" htmlFor="comment">
+                  Comments
+                </label>
+                <textarea
+                  id="comment"
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  className="w-full p-2 rounded bg-gray-700 text-white border border-cyan-500"
+                ></textarea>
+              </div>
+              <button
+                type="submit"
+                className="bg-cyan-600 text-white px-4 py-2 rounded hover:bg-cyan-700"
+              >
+                Post Comments
+              </button>
+            </form>
           </div>
         )}
       </div>
