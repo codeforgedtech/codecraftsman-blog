@@ -57,7 +57,10 @@ const SinglePost: React.FC = () => {
   const [commentName, setCommentName] = useState('');
   const [commentEmail, setCommentEmail] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-
+  const [newReply, setNewReply] = useState('');
+const [replyName, setReplyName] = useState('');
+const [replyEmail, setReplyEmail] = useState('');
+const [showCommentForm, setShowCommentForm] = useState(true);
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -89,6 +92,43 @@ const SinglePost: React.FC = () => {
     } catch (err) {
       console.error('Unexpected error:', err);
       setErrorMessage('Ett oväntat fel inträffade.');
+    }
+  };
+
+  const handleReplySubmit = async (
+    e: React.FormEvent,
+    commentId: string
+  ) => {
+    e.preventDefault();
+  
+    if (!newReply || !replyName || !replyEmail) {
+      setErrorMessage('All fields must be filled in!');
+      return;
+    }
+  
+    try {
+      const { data, error } = await supabase.from('replies').insert([
+        {
+          comment_id: commentId,
+          content: newReply,
+          user_name: replyName,
+          user_email: replyEmail,
+        },
+      ]);
+  
+      if (error) {
+        console.error('Error adding reply:', error.message);
+        setErrorMessage('An error occurred while submitting the reply.');
+      } else {
+        setNewReply('');
+        setReplyName('');
+        setReplyEmail('');
+        setErrorMessage('');
+        fetchCommentsAndReplies(post!.id); // Update comments and replies
+      }
+    } catch (err) {
+      console.error('Unexpected error:', err);
+      setErrorMessage('An unexpected error occurred.');
     }
   };
   useEffect(() => {
@@ -262,83 +302,146 @@ const SinglePost: React.FC = () => {
           Tags: {post.tags.join(', ')}
         </div>
 
-        {/* Kommentarsektionen */}
         {showComments && (
-          <div className="mt-6">
-            <h3 className="text-xl font-semibold mb-4">Comments</h3>
-            {comments.map((comment) => (
-              <div key={comment.id} className="mb-6">
-                <div className="bg-gray-800 p-4 rounded-lg shadow">
-                  <div className="flex justify-between">
-                    <h4 className="text-md font-semibold text-cyan-200">
-                      {comment.user_name}
-                    </h4>
-                    <span className="text-sm text-gray-400">
-                      {new Date(comment.created_at).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <p className="text-gray-300 mt-1">{comment.content}</p>
-                  <button
-                    className="text-sm text-cyan-400 mt-1 hover:underline"
-                    onClick={() => toggleCommentReplies(comment.id)}
-                  >
-                    {expandedComments.includes(comment.id) ? 'Hide Replies' : 'Show Replies'}
-                  </button>
-                  {expandedComments.includes(comment.id) && renderReplies(comment.id)}
-                </div>
-                </div>
-            ))}
+  <div className="mt-6">
+    <h3 className="text-xl font-semibold mb-4">Comments</h3>
+    {comments.map((comment) => (
+      <div key={comment.id} className="mb-6">
+        <div className="bg-gray-800 p-4 rounded-lg shadow">
+          <div className="flex justify-between">
+            <h4 className="text-md font-semibold text-cyan-200">
+              {comment.user_name}
+            </h4>
+            <span className="text-sm text-gray-400">
+              {new Date(comment.created_at).toLocaleDateString()}
+            </span>
+          </div>
+          <p className="text-gray-300 mt-1">{comment.content}</p>
+          
+          {/* Visar/hiderar huvudkommentaren baserat på svar (expandera) */}
+          <button
+            className="text-sm text-cyan-400 mt-1 hover:underline"
+            onClick={() => {
+              toggleCommentReplies(comment.id); // Hantera visning av svar
+              setShowCommentForm(!showCommentForm); // Dölja eller visa kommentarformuläret när "Show Replies" klickas
+            }}
+          >
+            {expandedComments.includes(comment.id) ? 'Hide Replies' : 'Show Replies'}
+          </button>
 
-            {/* Kommentarformulär */}
-            <form onSubmit={handleCommentSubmit} className="mt-6">
-              <h4 className="text-lg font-semibold mb-4">Add Comments</h4>
+          {expandedComments.includes(comment.id) && renderReplies(comment.id)} 
+          {expandedComments.includes(comment.id) && (
+            <div className="mt-4">
+              <h4 className="text-lg font-semibold mb-4">Reply to {comment.user_name}</h4>
               {errorMessage && (
                 <p className="text-red-500 text-sm mb-2">{errorMessage}</p>
               )}
-              <div className="mb-4">
-                <label className="block text-gray-300 mb-1" htmlFor="name">
-                  Name
-                </label>
-                <input
-                  id="name"
-                  type="text"
-                  value={commentName}
-                  onChange={(e) => setCommentName(e.target.value)}
-                  className="w-full p-2 rounded bg-gray-700 text-white border border-cyan-500"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-300 mb-1" htmlFor="email">
-                  E-mail
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  value={commentEmail}
-                  onChange={(e) => setCommentEmail(e.target.value)}
-                  className="w-full p-2 rounded bg-gray-700 text-white border border-cyan-500"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-300 mb-1" htmlFor="comment">
-                  Comments
-                </label>
-                <textarea
-                  id="comment"
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  className="w-full p-2 rounded bg-gray-700 text-white border border-cyan-500"
-                ></textarea>
-              </div>
-              <button
-                type="submit"
-                className="bg-cyan-600 text-white px-4 py-2 rounded hover:bg-cyan-700"
-              >
-                Post Comments
-              </button>
-            </form>
-          </div>
-        )}
+              <form onSubmit={(e) => handleReplySubmit(e, comment.id)}>
+                <div className="mb-4">
+                  <label className="block text-gray-300 mb-1" htmlFor="replyName">
+                    Name
+                  </label>
+                  <input
+                    id="replyName"
+                    type="text"
+                    value={replyName}
+                    onChange={(e) => setReplyName(e.target.value)}
+                    className="w-full p-2 rounded bg-gray-700 text-white border border-cyan-500"
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-gray-300 mb-1" htmlFor="replyEmail">
+                    E-mail
+                  </label>
+                  <input
+                    id="replyEmail"
+                    type="email"
+                    value={replyEmail}
+                    onChange={(e) => setReplyEmail(e.target.value)}
+                    className="w-full p-2 rounded bg-gray-700 text-white border border-cyan-500"
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-gray-300 mb-1" htmlFor="replyContent">
+                    Reply
+                  </label>
+                  <textarea
+                    id="replyContent"
+                    value={newReply}
+                    onChange={(e) => setNewReply(e.target.value)}
+                    className="w-full p-2 rounded bg-gray-700 text-white border border-cyan-500"
+                  ></textarea>
+                </div>
+                <button
+                  type="submit"
+                  className="bg-cyan-600 text-white px-4 py-2 rounded hover:bg-cyan-700"
+                >
+                  Post Reply
+                </button>
+              </form>
+            </div>
+          )}
+          
+          {/* Här kan svaren på kommentaren renderas */}
+        
+        </div>
+      </div>
+    ))}
+
+{showCommentForm && (
+    <form onSubmit={handleCommentSubmit} className="mt-6">
+      <h4 className="text-lg font-semibold mb-4">Add Comment</h4>
+      {errorMessage && (
+        <p className="text-red-500 text-sm mb-2">{errorMessage}</p>
+      )}
+      <div className="mb-4">
+        <label className="block text-gray-300 mb-1" htmlFor="name">
+          Name
+        </label>
+        <input
+          id="name"
+          type="text"
+          value={commentName}
+          onChange={(e) => setCommentName(e.target.value)}
+          className="w-full p-2 rounded bg-gray-700 text-white border border-cyan-500"
+        />
+      </div>
+      <div className="mb-4">
+        <label className="block text-gray-300 mb-1" htmlFor="email">
+          E-mail
+        </label>
+        <input
+          id="email"
+          type="email"
+          value={commentEmail}
+          onChange={(e) => setCommentEmail(e.target.value)}
+          className="w-full p-2 rounded bg-gray-700 text-white border border-cyan-500"
+        />
+      </div>
+      <div className="mb-4">
+        <label className="block text-gray-300 mb-1" htmlFor="comment">
+          Comment
+        </label>
+        <textarea
+          id="comment"
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
+          className="w-full p-2 rounded bg-gray-700 text-white border border-cyan-500"
+        ></textarea>
+      </div>
+      <button
+        type="submit"
+        className="bg-cyan-600 text-white px-4 py-2 rounded hover:bg-cyan-700"
+      >
+        Post Comment
+      </button>
+    </form>
+   )}
+   </div>
+ )}
+
+
+        
       </div>
     </div>
   );
