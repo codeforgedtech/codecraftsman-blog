@@ -26,7 +26,18 @@ const Sidebar: React.FC = () => {
             {activeLink === 'home' && <span className="ml-2">Home</span>}
           </Link>
         </li>
-
+        <li className={`flex items-center transition-all duration-300`}>
+  <Link
+    to="/archive"
+    onClick={() => handleLinkClick('archive')}
+    className={`flex items-center space-x-3 transition-all duration-300 text-cyan-500
+    ${activeLink === 'archive' ? 'bg-cyan-500 text-white w-40' : 'w-16'} 
+    rounded-full py-3 px-4 hover:bg-cyan-500 hover:text-white`}
+  >
+    <ArchiveBoxIcon className="h-8 w-8" />
+    {activeLink === 'archive' && <span className="ml-2">Archive</span>}
+  </Link>
+</li>
         {/* About Link */}
         <li className={`flex items-center transition-all duration-300`}>
           <Link
@@ -41,21 +52,6 @@ const Sidebar: React.FC = () => {
           </Link>
         </li>
 
-        {/* Blog Link */}
-        <li className={`flex items-center transition-all duration-300`}>
-          <Link
-            to="/blog"
-            onClick={() => handleLinkClick('blog')}
-            className={`flex items-center space-x-3 transition-all duration-300 text-cyan-500
-            ${activeLink === 'blog' ? 'bg-cyan-500 text-white w-40' : 'w-16'} 
-            rounded-full py-3 px-4 hover:bg-cyan-500 hover:text-white`}
-          >
-            <ArchiveBoxIcon className="h-8 w-8" />
-            {activeLink === 'blog' && <span className="ml-2">Arcive</span>}
-          </Link>
-        </li>
-
-        {/* Contact Link */}
         <li className={`flex items-center transition-all duration-300`}>
           <Link
             to="/contact"

@@ -249,12 +249,12 @@ const [showCommentForm, setShowCommentForm] = useState(true);
 
   return (
     <div className="bg-black min-h-screen text-white font-sans p-8 flex items-center justify-center w-screen">
-      <div className="w-full max-w-4xl bg-gradient-to-r from-gray-800 via-gray-900 to-black rounded-xl shadow-lg p-6">
+      <div className="w-full max-w-6xl bg-gradient-to-r from-gray-800 via-gray-900 to-black rounded-xl shadow-lg p-6">
         {post.images[0] && (
           <img
             src={post.images[0]}
             alt={post.title}
-            className="w-full h-96 object-cover rounded-lg mb-4 border-4 border-cyan-500 shadow-xl"
+            className="w-full h-100 object-cover rounded-lg mb-4 border-4 border-cyan-500 shadow-xl"
           />
         )}
         <div className="flex items-center space-x-2">
