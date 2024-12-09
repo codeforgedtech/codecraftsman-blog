@@ -14,16 +14,18 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
   };
 
   return (
-    <div className="flex justify-center mb-6">
+    <div className="flex justify-left px-4 mb-6">
       <input
         type="text"
         value={searchTerm}
         onChange={handleInputChange}
         placeholder="Search posts..."
-        className="w-full max-w-lg p-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+        className="p-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 sm:max-w-full"
       />
     </div>
   );
 };
 
 export default SearchBar;
+
+

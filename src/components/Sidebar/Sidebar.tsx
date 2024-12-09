@@ -1,75 +1,130 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { HomeIcon, InformationCircleIcon, ArchiveBoxIcon, CubeIcon } from '@heroicons/react/24/solid';
+import { 
+  HomeIcon, 
+  InformationCircleIcon, 
+  ArchiveBoxIcon, 
+  CubeIcon, 
+  StarIcon, 
+  Bars3Icon, 
+  XMarkIcon 
+} from '@heroicons/react/24/solid';
+import logo from "../../assets/codelogo.svg"
+
 
 const Sidebar: React.FC = () => {
-  const [activeLink, setActiveLink] = useState<string | null>(null); // För att hålla koll på den aktiva länken
+  const [activeLink, setActiveLink] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const handleLinkClick = (link: string) => {
-    setActiveLink(link); // Uppdatera den aktiva länken när du klickar på en
+    setActiveLink(link);
+    setIsSidebarOpen(false); // Stänger sidofältet efter att en länk är vald
   };
 
   return (
-    <div className="fixed left-0 top-0 h-full w-64 bg-black text-white p-6 shadow-xl">
-      <h2 className="text-2xl font-bold text-cyan-500 mb-8">Menu</h2>
-      <ul className="space-y-6">
-        {/* Home Link */}
-        <li className={`flex items-center transition-all duration-300`}>
-          <Link
-            to="/"
-            onClick={() => handleLinkClick('home')}
-            className={`flex items-center space-x-3 transition-all duration-300 text-cyan-500
-            ${activeLink === 'home' ? 'bg-cyan-500 text-white w-40' : 'w-16'} 
-            rounded-full py-3 px-4 hover:bg-cyan-500 hover:text-white`}
-          >
-            <HomeIcon className="h-8 w-8" />
-            {activeLink === 'home' && <span className="ml-2">Home</span>}
-          </Link>
-        </li>
-        <li className={`flex items-center transition-all duration-300`}>
-  <Link
-    to="/archive"
-    onClick={() => handleLinkClick('archive')}
-    className={`flex items-center space-x-3 transition-all duration-300 text-cyan-500
-    ${activeLink === 'archive' ? 'bg-cyan-500 text-white w-40' : 'w-16'} 
-    rounded-full py-3 px-4 hover:bg-cyan-500 hover:text-white`}
-  >
-    <ArchiveBoxIcon className="h-8 w-8" />
-    {activeLink === 'archive' && <span className="ml-2">Archive</span>}
-  </Link>
-</li>
-        {/* About Link */}
-        <li className={`flex items-center transition-all duration-300`}>
-          <Link
-            to="/about"
-            onClick={() => handleLinkClick('about')}
-            className={`flex items-center space-x-3 transition-all duration-300 text-cyan-500
-            ${activeLink === 'about' ? 'bg-cyan-500 text-white w-40' : 'w-16'} 
-            rounded-full py-3 px-4 hover:bg-cyan-500 hover:text-white`}
-          >
-            <InformationCircleIcon className="h-8 w-8" />
-            {activeLink === 'about' && <span className="ml-2">About</span>}
-          </Link>
-        </li>
+    <>
+      {/* Hamburger Menu for Mobile */}
+      <button 
+        className="fixed top-4 left-4 z-50 bg-cyan-500 p-2 rounded-md text-white md:hidden"
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+      >
+        {isSidebarOpen ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
+      </button>
 
-        <li className={`flex items-center transition-all duration-300`}>
-          <Link
-            to="/contact"
-            onClick={() => handleLinkClick('contact')}
-            className={`flex items-center space-x-22 transition-all duration-300 text-cyan-500
-            ${activeLink === 'contact' ? 'bg-cyan-500 text-white w-40' : 'w-16'} 
-            rounded-full py-3 px-4 hover:bg-cyan-500 hover:text-white`}
-          >
-            <CubeIcon className="h-8 w-8" />
-            {activeLink === 'contact' && <span className="ml-2">Contact</span>}
-          </Link>
-        </li>
-      </ul>
-    </div>
+      {/* Overlay for when the sidebar is open */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40" 
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div
+  className={`fixed left-0 top-0 h-full bg-black text-white p-6 shadow-xl transform transition-all duration-300 
+  ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:relative md:w-48 md:h-full z-50`} // ändrat från w-64 till w-48
+>
+<div className="flex justify-center items-center mb-4">
+  <img 
+    src={logo} 
+    alt="Logo" 
+    className="h-32 md:h-64"  // Justera storleken: mindre på mobil, större på desktop
+  />
+</div>
+
+        <ul className="space-y-6">
+  <li>
+    <Link
+      to="/"
+      onClick={() => handleLinkClick('home')}
+      className={`flex items-center space-x-3 text-cyan-500 
+      ${activeLink === 'home' ? 'bg-cyan-500 text-white' : ''} 
+      rounded-full py-3 px-4 hover:bg-cyan-500 hover:text-white`}
+    >
+      <HomeIcon className="h-8 w-8" />
+      <span className="inline">Home</span> {/* Ändrat här */}
+    </Link>
+  </li>
+
+          <li>
+            <Link
+              to="/archive"
+              onClick={() => handleLinkClick('archive')}
+              className={`flex items-center space-x-3 text-cyan-500 
+              ${activeLink === 'archive' ? 'bg-cyan-500 text-white' : ''} 
+              rounded-full py-3 px-4 hover:bg-cyan-500 hover:text-white`}
+            >
+              <ArchiveBoxIcon className="h-8 w-8" />
+              <span className="inline">Archive</span>
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/about"
+              onClick={() => handleLinkClick('about')}
+              className={`flex items-center space-x-3 text-cyan-500 
+              ${activeLink === 'about' ? 'bg-cyan-500 text-white' : ''} 
+              rounded-full py-3 px-4 hover:bg-cyan-500 hover:text-white`}
+            >
+              <InformationCircleIcon className="h-8 w-8" />
+              <span className="inline">About</span>
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/contact"
+              onClick={() => handleLinkClick('contact')}
+              className={`flex items-center space-x-3 text-cyan-500 
+              ${activeLink === 'contact' ? 'bg-cyan-500 text-white' : ''} 
+              rounded-full py-3 px-4 hover:bg-cyan-500 hover:text-white`}
+            >
+              <CubeIcon className="h-8 w-8" />
+              <span className="inline">Contact</span>
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/reviews"
+              onClick={() => handleLinkClick('reviews')}
+              className={`flex items-center space-x-3 text-cyan-500 
+              ${activeLink === 'reviews' ? 'bg-cyan-500 text-white' : ''} 
+              rounded-full py-3 px-4 hover:bg-cyan-500 hover:text-white`}
+            >
+              <StarIcon className="h-8 w-8" />
+              <span className="inline">Reviews</span>
+            </Link>
+          </li>
+        </ul>
+      </div>
+    </>
   );
 };
 
 export default Sidebar;
+
+
+
+
 
 
 

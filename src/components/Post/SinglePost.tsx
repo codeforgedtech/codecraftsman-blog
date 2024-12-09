@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom'; 
 import { supabase } from '../../supabaseClient';
 import DOMPurify from 'dompurify';
 import {
-  PencilIcon,
+ 
   CalendarIcon,
   HeartIcon,
   EyeIcon,
@@ -47,6 +47,7 @@ interface Reply {
 
 const SinglePost: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate(); 
   const [post, setPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [replies, setReplies] = useState<Reply[]>([]);
@@ -70,7 +71,8 @@ const [showCommentForm, setShowCommentForm] = useState(true);
     }
 
     try {
-      const { data, error } = await supabase.from('comments').insert([
+     
+      const { error } = await supabase.from('comments').insert([
         {
           post_id: post?.id,
           content: newComment,
@@ -107,7 +109,8 @@ const [showCommentForm, setShowCommentForm] = useState(true);
     }
   
     try {
-      const { data, error } = await supabase.from('replies').insert([
+     
+      const { error } = await supabase.from('replies').insert([
         {
           comment_id: commentId,
           content: newReply,
@@ -214,7 +217,7 @@ const [showCommentForm, setShowCommentForm] = useState(true);
   const getRepliesForComment = (commentId: string) => {
     return replies.filter((reply) => reply.comment_id === commentId);
   };
-
+ 
   const renderReplies = (commentId: string) => {
     const repliesToRender = getRepliesForComment(commentId);
     return repliesToRender.map((reply) => (
@@ -248,21 +251,22 @@ const [showCommentForm, setShowCommentForm] = useState(true);
   }
 
   return (
-    <div className="bg-black min-h-screen text-white font-sans p-8 flex items-center justify-center w-screen">
-      <div className="w-full max-w-6xl bg-gradient-to-r from-gray-800 via-gray-900 to-black rounded-xl shadow-lg p-6">
+    <div className="bg-black min-h-screen text-white font-sans px-4 py-8 flex items-start justify-start w-screen">
+    <div className="w-full max-w-6xl">
+      <div className='p-4 sm:p-6 bg-gradient-to-r from-gray-800 via-gray-900 to-black rounded-xl shadow-lg'>
         {post.images[0] && (
           <img
             src={post.images[0]}
             alt={post.title}
-            className="w-full h-100 object-cover rounded-lg mb-4 border-4 border-cyan-500 shadow-xl"
+            className="w-full h-64 object-cover rounded-lg mb-4 border-4 border-cyan-500 shadow-xl"
           />
         )}
         <div className="flex items-center space-x-2">
-          <PencilIcon className="h-6 w-6 text-cyan-400" />
-          <h1 className="text-4xl font-bold text-cyan-400 mb-4">{post.title}</h1>
+         
+          <h1 className="text-xl sm:text-2xl font-semibold text-cyan-400 mb-4 hover:text-cyan-300 transition duration-300">{post.title}</h1>
         </div>
         <div
-          className="text-lg text-gray-300 mb-4"
+          className="text-sm sm:text-lg text-gray-300 mb-4"
           dangerouslySetInnerHTML={{
             __html: DOMPurify.sanitize(post.content),
           }}
@@ -301,96 +305,100 @@ const [showCommentForm, setShowCommentForm] = useState(true);
         <div className="text-sm text-gray-400 mt-2">
           Tags: {post.tags.join(', ')}
         </div>
-
-        {showComments && (
-  <div className="mt-6">
-    <h3 className="text-xl font-semibold mb-4">Comments</h3>
-    {comments.map((comment) => (
-      <div key={comment.id} className="mb-6">
-        <div className="bg-gray-800 p-4 rounded-lg shadow">
-          <div className="flex justify-between">
-            <h4 className="text-md font-semibold text-cyan-200">
-              {comment.user_name}
-            </h4>
-            <span className="text-sm text-gray-400">
-              {new Date(comment.created_at).toLocaleDateString()}
-            </span>
+        <div className="mt-8 text-center">
+            <button
+              onClick={() => navigate(-1)} // Navigates to the previous page
+              className="bg-cyan-700 text-white text-xs font-bold px-6 py-2 rounded hover:bg-cyan-600 transition duration-300"
+            >
+              Tillbaka
+            </button>
           </div>
-          <p className="text-gray-300 mt-1">{comment.content}</p>
-          
-          {/* Visar/hiderar huvudkommentaren baserat på svar (expandera) */}
-          <button
-            className="text-sm text-cyan-400 mt-1 hover:underline"
-            onClick={() => {
-              toggleCommentReplies(comment.id); // Hantera visning av svar
-              setShowCommentForm(!showCommentForm); // Dölja eller visa kommentarformuläret när "Show Replies" klickas
-            }}
-          >
-            {expandedComments.includes(comment.id) ? 'Hide Replies' : 'Show Replies'}
-          </button>
-
-          {expandedComments.includes(comment.id) && renderReplies(comment.id)} 
-          {expandedComments.includes(comment.id) && (
-            <div className="mt-4">
-              <h4 className="text-lg font-semibold mb-4">Reply to {comment.user_name}</h4>
-              {errorMessage && (
-                <p className="text-red-500 text-sm mb-2">{errorMessage}</p>
-              )}
-              <form onSubmit={(e) => handleReplySubmit(e, comment.id)}>
-                <div className="mb-4">
-                  <label className="block text-gray-300 mb-1" htmlFor="replyName">
-                    Name
-                  </label>
-                  <input
-                    id="replyName"
-                    type="text"
-                    value={replyName}
-                    onChange={(e) => setReplyName(e.target.value)}
-                    className="w-full p-2 rounded bg-gray-700 text-white border border-cyan-500"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-gray-300 mb-1" htmlFor="replyEmail">
-                    E-mail
-                  </label>
-                  <input
-                    id="replyEmail"
-                    type="email"
-                    value={replyEmail}
-                    onChange={(e) => setReplyEmail(e.target.value)}
-                    className="w-full p-2 rounded bg-gray-700 text-white border border-cyan-500"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-gray-300 mb-1" htmlFor="replyContent">
-                    Reply
-                  </label>
-                  <textarea
-                    id="replyContent"
-                    value={newReply}
-                    onChange={(e) => setNewReply(e.target.value)}
-                    className="w-full p-2 rounded bg-gray-700 text-white border border-cyan-500"
-                  ></textarea>
-                </div>
-                <button
-                  type="submit"
-                  className="bg-cyan-600 text-white px-4 py-2 rounded hover:bg-cyan-700"
-                >
-                  Post Reply
-                </button>
-              </form>
-            </div>
-          )}
-          
-          {/* Här kan svaren på kommentaren renderas */}
-        
         </div>
-      </div>
-    ))}
+        {showComments && (
+          <div className="mt-6">
+  <h3 className="text-2xl font-semibold mb-6 text-cyan-200">Comments</h3>
+  {comments.map((comment) => (
+    <div key={comment.id} className="mb-6">
+      <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+          <h4 className="text-lg font-semibold text-cyan-200">{comment.user_name}</h4>
+          <span className="text-sm text-gray-400 mt-2 sm:mt-0">
+            {new Date(comment.created_at).toLocaleDateString()}
+          </span>
+        </div>
+        <p className="text-gray-300">{comment.content}</p>
 
-{showCommentForm && (
-    <form onSubmit={handleCommentSubmit} className="mt-6">
-      <h4 className="text-lg font-semibold mb-4">Add Comment</h4>
+        <button
+          className="text-sm text-cyan-400 mt-3 hover:underline"
+          onClick={() => {
+            toggleCommentReplies(comment.id);
+            setShowCommentForm(!showCommentForm);
+          }}
+        >
+          {expandedComments.includes(comment.id) ? 'Hide Replies' : 'Show Replies'}
+        </button>
+
+        {expandedComments.includes(comment.id) && renderReplies(comment.id)}
+        {expandedComments.includes(comment.id) && (
+          <div className="mt-6 bg-gray-700 p-4 rounded-lg">
+            <h4 className="text-lg font-semibold mb-4 text-cyan-200">
+              Reply to {comment.user_name}
+            </h4>
+            {errorMessage && (
+              <p className="text-red-500 text-sm mb-2">{errorMessage}</p>
+            )}
+            <form onSubmit={(e) => handleReplySubmit(e, comment.id)}>
+              <div className="mb-4">
+                <label className="block text-gray-300 mb-1" htmlFor="replyName">
+                  Name
+                </label>
+                <input
+                  id="replyName"
+                  type="text"
+                  value={replyName}
+                  onChange={(e) => setReplyName(e.target.value)}
+                  className="w-full p-2 rounded bg-gray-600 text-white border border-cyan-500"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-300 mb-1" htmlFor="replyEmail">
+                  E-mail
+                </label>
+                <input
+                  id="replyEmail"
+                  type="email"
+                  value={replyEmail}
+                  onChange={(e) => setReplyEmail(e.target.value)}
+                  className="w-full p-2 rounded bg-gray-600 text-white border border-cyan-500"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-300 mb-1" htmlFor="replyContent">
+                  Reply
+                </label>
+                <textarea
+                  id="replyContent"
+                  value={newReply}
+                  onChange={(e) => setNewReply(e.target.value)}
+                  className="w-full p-2 rounded bg-gray-600 text-white border border-cyan-500"
+                ></textarea>
+              </div>
+              <button
+                type="submit"
+                className="bg-cyan-600 text-white px-4 py-2 rounded hover:bg-cyan-700"
+              >
+                Post Reply
+              </button>
+            </form>
+          </div>
+        )}
+      </div>
+    </div>
+  ))}
+
+  {showCommentForm && (
+    <form onSubmit={handleCommentSubmit} className="mt-8 bg-gray-800 p-6 rounded-lg shadow-lg">
+      <h4 className="text-lg font-semibold mb-4 text-cyan-200">Add Comment</h4>
       {errorMessage && (
         <p className="text-red-500 text-sm mb-2">{errorMessage}</p>
       )}
@@ -403,7 +411,7 @@ const [showCommentForm, setShowCommentForm] = useState(true);
           type="text"
           value={commentName}
           onChange={(e) => setCommentName(e.target.value)}
-          className="w-full p-2 rounded bg-gray-700 text-white border border-cyan-500"
+          className="w-full p-2 rounded bg-gray-600 text-white border border-cyan-500"
         />
       </div>
       <div className="mb-4">
@@ -415,7 +423,7 @@ const [showCommentForm, setShowCommentForm] = useState(true);
           type="email"
           value={commentEmail}
           onChange={(e) => setCommentEmail(e.target.value)}
-          className="w-full p-2 rounded bg-gray-700 text-white border border-cyan-500"
+          className="w-full p-2 rounded bg-gray-600 text-white border border-cyan-500"
         />
       </div>
       <div className="mb-4">
@@ -426,7 +434,7 @@ const [showCommentForm, setShowCommentForm] = useState(true);
           id="comment"
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
-          className="w-full p-2 rounded bg-gray-700 text-white border border-cyan-500"
+          className="w-full p-2 rounded bg-gray-600 text-white border border-cyan-500"
         ></textarea>
       </div>
       <button
@@ -436,8 +444,9 @@ const [showCommentForm, setShowCommentForm] = useState(true);
         Post Comment
       </button>
     </form>
-   )}
-   </div>
+  )}
+</div>
+
  )}
 
 

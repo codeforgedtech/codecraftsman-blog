@@ -4,6 +4,10 @@ import Sidebar from './components/Sidebar/Sidebar'; // Importera Sidebar-kompone
 import PostList from './components/Post/PostList'; // Exempel på blogginläggskomponent
 import SinglePost from './components/Post/SinglePost';
 import ArchivePage from './components/Arcive/ArchivePage';
+import AboutPage from './components/About/About';
+import ReviewList from './components/Review/ReviewList';
+import SingleReview from './components/Review/SingleReview';
+import ContactPage from './components/Contact/ContactPage';
 const App: React.FC = () => {
   return (
     <Router>
@@ -16,7 +20,11 @@ const App: React.FC = () => {
             <Routes>
               <Route path="/" element={<PostList />} />
               <Route path="/archive" element={<ArchivePage />} />
+              <Route path="/about" element={<AboutPage />} />
               <Route path="/post/:slug" element={<SinglePost />} /> 
+              <Route path="/review/:slug" element={<SingleReview />} /> 
+              <Route path="/reviews" element={<ReviewList />} /> 
+              <Route path="/contact" element={<ContactPage />} /> 
             </Routes>
           </div>
         </div>

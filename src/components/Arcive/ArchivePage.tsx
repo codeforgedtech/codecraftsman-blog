@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../supabaseClient';
-import { CalendarIcon, ChevronRightIcon, EyeIcon, ChatBubbleLeftIcon } from '@heroicons/react/24/solid';
+import { CalendarIcon, ChevronRightIcon, EyeIcon, ChatBubbleLeftIcon, ArrowRightIcon, ArrowLeftIcon } from '@heroicons/react/24/solid';
 import SearchBar from '../Search/SearchBar'; 
 import { Link } from 'react-router-dom';
 
@@ -30,10 +30,13 @@ const ArchivePage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [postsPerPage] = useState(5);  // Justera antal inlägg per sida
   const [sortOption, setSortOption] = useState('date');  // Standard sortering efter datum
-  const [, setSearchTerm] = useState<string>('');  // State för söktermen
+   // State för söktermen
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentSortOrder, setCommentSortOrder] = useState<'asc' | 'desc'>('desc');  // Nytt tillstånd för att växla mellan stigande och fallande
-
+  useEffect(() => {
+    // Scroll to top when component is mounted
+    window.scrollTo(0, 0);
+  }, []);
   useEffect(() => {
     const fetchPosts = async () => {
       const { data, error } = await supabase.from('posts').select('*');
@@ -116,15 +119,12 @@ const ArchivePage: React.FC = () => {
     return postComments.length;
   };
 
-  const handleSearch = (term: string) => {
-    setSearchTerm(term);
-    if (!term) {
-      setFilteredPosts(posts);
+  const handleCombinedChange = (value: string) => {
+    if (value.startsWith('comments-')) {
+      const order = value.split('-')[1];
+      toggleCommentSortOrder(order); // Funktion för att ändra kommentarsordning
     } else {
-      const filtered = posts.filter((post) =>
-        post.title.toLowerCase().includes(term.toLowerCase()) || post.content.toLowerCase().includes(term.toLowerCase())
-      );
-      setFilteredPosts(filtered);
+      handleSortChange(value); // Funktion för att ändra sortering
     }
   };
 
@@ -144,42 +144,47 @@ const ArchivePage: React.FC = () => {
     window.scrollTo(0, 0); // Rullar till toppen
   };
 
-  const toggleCommentSortOrder = () => {
+  const toggleCommentSortOrder = (_order: string) => {
     setCommentSortOrder((prev) => (prev === 'desc' ? 'asc' : 'desc'));
     handleSortChange('comments'); // Uppdatera sorteringen baserat på den nya ordningen
   };
 
   return (
-    <div className="bg-black min-h-screen text-white font-sans p-8 flex items-center justify-center w-screen">
-      <div className="w-full max-w-6xl p-6 mx-auto">
-        <h1 className="text-4xl font-bold text-center text-cyan-500 mb-8">Archive</h1>
+    <div className="bg-black min-h-screen text-white font-sans px-4 py-8 flex items-start justify-start w-screen">
+    <div className="w-full max-w-6xl">
+        <h1 className="text-3xl sm:text-4xl font-bold text-left text-cyan-500 mb-8">Archive</h1>
 
-        <div className="mb-4 flex justify-center space-x-4">
-          <select
-            onChange={(e) => handleSortChange(e.target.value)}
-            value={sortOption}
-            className="px-4 py-2 rounded bg-gray-700 text-white"
-          >
-            <option value="date">Sort by Date</option>
-            <option value="views">Sort by Views</option>
-            <option value="category">Sort by Category</option>
-            <option value="comments">Sort by Comments</option>
-          </select>
-          <select
-            onChange={toggleCommentSortOrder}
-            className="px-4 py-2 rounded bg-gray-700 text-white"
-            value={commentSortOrder}
-          >
-            <option value="desc">Descending Comments</option>
-            <option value="asc">Ascending Comments</option>
-          </select>
-        </div>
+        <div className="mb-4 flex flex-col sm:flex-row gap-4">
+  <div className="w-full sm:w-auto">
+    <label htmlFor="combined-options" className="block text-cyan-400 mb-2">
+      Select Option
+    </label>
+    <select
+      id="combined-options"
+      onChange={(e) => handleCombinedChange(e.target.value)}
+      value={sortOption}
+      className="w-full sm:w-auto px-4 py-2 rounded bg-gray-800 text-cyan-400 border border-gray-600"
+    >
+      <optgroup label="Sort Options">
+        <option value="date">Sort by Date</option>
+        <option value="views">Sort by Views</option>
+        <option value="category">Sort by Category</option>
+        <option value="comments">Sort by Comments</option>
+      </optgroup>
+      <optgroup label="Comment Order">
+        <option value="comments-desc">Descending Comments</option>
+        <option value="comments-asc">Ascending Comments</option>
+      </optgroup>
+    </select>
+  </div>
+</div>
 
-        <SearchBar onSearch={handleSearch} />
 
-        <ul className="space-y-8">
+        
+
+        <ul className="space-y-6">
           {currentPosts.map((post) => (
-            <li key={post.id} className="p-6 bg-gradient-to-r from-gray-800 via-gray-900 to-black rounded-xl shadow-lg transform hover:scale-105 transition-all duration-300">
+            <li key={post.id} className="p-4 sm:p-6 bg-gradient-to-r from-gray-800 via-gray-900 to-black rounded-xl shadow-lg">
               {post.images[0] && (
                 <img
                   src={post.images[0]}
@@ -187,7 +192,7 @@ const ArchivePage: React.FC = () => {
                   className="w-full h-64 object-cover rounded-lg mb-4 border-4 border-cyan-500 shadow-xl"
                 />
               )}
-              <h2 className="text-3xl font-semibold text-cyan-400 mb-4">{post.title}</h2>
+              <h2 className="text-xl sm:text-2xl font-semibold text-cyan-400 mb-4 hover:text-cyan-300 transition duration-300">{post.title}</h2>
              
               <div className="flex justify-between items-center text-sm text-gray-500">
                 <span className="flex items-center space-x-1">
@@ -216,22 +221,25 @@ const ArchivePage: React.FC = () => {
           ))}
         </ul>
 
-        <div className="flex justify-between mt-8">
-          <button
-            className="px-4 py-2 bg-cyan-600 text-white rounded-md hover:bg-cyan-700"
-            onClick={paginatePrev}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </button>
-          <button
-            className="px-4 py-2 bg-cyan-600 text-white rounded-md hover:bg-cyan-700"
-            onClick={paginateNext}
-            disabled={indexOfLastPost >= filteredPosts.length}
-          >
-            Next
-          </button>
-        </div>
+        <div className="flex justify-center sm:justify-between items-center mt-8">
+  <button
+    className="px-4 py-2 bg-cyan-600 text-white rounded-md hover:bg-cyan-700 disabled:opacity-50"
+    onClick={paginatePrev}
+    disabled={currentPage === 1}
+  >
+   <ArrowLeftIcon className="h-5 w-5" />
+  </button>
+  <span className="mx-4 text-cyan-400 font-semibold">
+    {currentPage} of {Math.ceil(filteredPosts.length / postsPerPage)}
+  </span>
+  <button
+    className="px-4 py-2 bg-cyan-600 text-white rounded-md hover:bg-cyan-700 disabled:opacity-50"
+    onClick={paginateNext}
+    disabled={indexOfLastPost >= filteredPosts.length}
+  >
+    <ArrowRightIcon className="h-5 w-5" />
+  </button>
+</div>
       </div>
     </div>
   );
