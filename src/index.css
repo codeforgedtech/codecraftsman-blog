@@ -57,6 +57,133 @@ button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
+/* Grundläggande styling för annonssektionerna */
+.ads-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Sektioner för top, middle, och bottom */
+.ads-top-page {
+  margin-top: 0;  
+  margin-bottom: 30px;
+}
+
+.ads-middle {
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+.ads-in-content {
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+.ads-sidebar {
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+/* Styling för varje annonskort */
+.ad-card {
+  background-color: #1c1c1c;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.ad-card:hover {
+  transform: scale(1.05);
+}
+
+.ad-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.ad-card h3 {
+  font-size: 1.25rem;
+  color: #00bcd4;
+  margin-top: 15px;
+}
+
+.ad-card p {
+  font-size: 1rem;
+  color: #b0bec5;
+  margin-top: 8px;
+}
+
+/* För sektionens layout med max bredd */
+.ads-section.ads-post-top {
+  padding: 10px 0;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.ads-section.ads-sidebar {
+  padding: 10px 0;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.ads-section.ads-middle,
+.ads-section.ads-in-content {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Responsiv design */
+@media (max-width: 768px) {
+  .ads-section {
+    padding: 10px;
+  }
+
+  .ad-card {
+    padding: 15px;  /* Minska padding på mobilen för bättre användarupplevelse */
+    margin: 10px 0;  /* Lägg till lite mellanrum mellan korten */
+  }
+
+  .ad-card img {
+    width: 100%;
+    height: auto;
+    max-width: 100%;  /* Gör så att bilden inte blir större än kortet */
+    border-radius: 8px;
+  }
+
+  .ad-card h3 {
+    font-size: 1.125rem;  /* Minska storleken på titeln på små enheter */
+  }
+
+  .ad-card p {
+    font-size: 0.875rem;  /* Minska storleken på texten för beskrivningen på små enheter */
+  }
+
+  /* Gör så att annonssektionerna får ett bra mellanrum på mobil */
+  .ads-top-page, .ads-middle, .ads-in-content, .ads-section.ads-sidebar {
+    margin-bottom: 15px;
+  }
+}
+
+/* Ytterligare förbättringar för ännu mindre skärmar */
+@media (max-width: 480px) {
+  .ad-card {
+    padding: 10px;  /* Ytterligare minskad padding för små skärmar */
+  }
+
+  .ad-card h3 {
+    font-size: 1rem;  /* Ännu mindre textstorlek för titeln */
+  }
+
+  .ad-card p {
+    font-size: 0.75rem;  /* Ännu mindre textstorlek för beskrivningen */
+  }
+}
 
 @media (prefers-color-scheme: light) {
   :root {

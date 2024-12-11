@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
 import DOMPurify from 'dompurify';
 import { CalendarIcon, HeartIcon } from '@heroicons/react/24/solid';
-
+import AdsSection from '../Ads/adsPage';
 interface Reviews {
   id: string;
   title: string;
@@ -63,6 +63,10 @@ const SingleReview: React.FC = () => {
   return (
     <div className="bg-black min-h-screen text-white font-sans px-4 py-8 flex items-start justify-start w-screen">
       <div className="w-full max-w-6xl">
+      <div className="bg-gradient-to-r from-gray-700 via-gray-800 to-black p-6 rounded-lg shadow-lg mb-8">
+
+<AdsSection placement="post-top" />
+</div>
         <div className="p-4 sm:p-6 bg-gradient-to-r from-gray-800 via-gray-900 to-black rounded-xl shadow-lg">
           <img
             src={reviews.imageUrl}

@@ -1,31 +1,25 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 interface SearchBarProps {
-  onSearch: (term: string) => void;
+  value: string; // Add the value prop to accept the search term
+  onSearch: (term: string) => void; // Add the onSearch prop to handle the search functionality
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const term = e.target.value;
-    setSearchTerm(term);
-    onSearch(term); // Skicka uppdaterad sökterm
+const SearchBar: React.FC<SearchBarProps> = ({ value, onSearch }) => {
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    onSearch(event.target.value); // Call the onSearch function when the input changes
   };
 
   return (
-    <div className="flex justify-left px-4 mb-6">
-      <input
-        type="text"
-        value={searchTerm}
-        onChange={handleInputChange}
-        placeholder="Search posts..."
-        className="p-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 sm:max-w-full"
-      />
-    </div>
+    <input
+      type="text"
+      value={value} // Bind the input value to the passed value prop
+      onChange={handleInputChange} // Trigger the onSearch function when the user types
+      className="sm:w-48 p-2 bg-gray-800 text-cyan-400 border border-gray-600 rounded text-sm sm:text-base"
+      placeholder="Search..."
+    />
   );
 };
 
 export default SearchBar;
-
 

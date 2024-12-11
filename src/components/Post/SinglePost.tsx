@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom'; 
 import { supabase } from '../../supabaseClient';
 import DOMPurify from 'dompurify';
+import AdsSection from '../Ads/adsPage';
 import {
  
   CalendarIcon,
@@ -251,8 +252,16 @@ const [showCommentForm, setShowCommentForm] = useState(true);
   }
 
   return (
+    
     <div className="bg-black min-h-screen text-white font-sans px-4 py-8 flex items-start justify-start w-screen">
     <div className="w-full max-w-6xl">
+    <div className="bg-gradient-to-r from-gray-700 via-gray-800 to-black p-6 rounded-lg shadow-lg mb-8">
+
+    <AdsSection placement="sidebar" />
+    </div>
+    <h1 className="text-3xl sm:text-4xl font-bold text-left text-cyan-500 mb-8">
+   {post.title}</h1>
+     
       <div className='p-4 sm:p-6 bg-gradient-to-r from-gray-800 via-gray-900 to-black rounded-xl shadow-lg'>
         {post.images[0] && (
           <img
@@ -263,7 +272,7 @@ const [showCommentForm, setShowCommentForm] = useState(true);
         )}
         <div className="flex items-center space-x-2">
          
-          <h1 className="text-xl sm:text-2xl font-semibold text-cyan-400 mb-4 hover:text-cyan-300 transition duration-300">{post.title}</h1>
+       
         </div>
         <div
           className="text-sm sm:text-lg text-gray-300 mb-4"

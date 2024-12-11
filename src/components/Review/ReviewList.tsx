@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
 import { CalendarIcon, ChevronRightIcon, HeartIcon} from '@heroicons/react/24/solid';
-import SearchBar from '../Search/SearchBar'; 
+import AdsSection from '../Ads/adsPage';
 
 interface Review {
   id: string;
@@ -22,13 +22,8 @@ interface Review {
 }
 
 const ReviewList: React.FC = () => {
-  const [reviews, setReviews] = useState<Review[]>([]);
+  
   const [filteredReviews, setFilteredReviews] = useState<Review[]>([]);
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [searchType, setSearchType] = useState('content');
-  const [sortType, setSortType] = useState<string>('');
-
-
   useEffect(() => {
     const fetchReviews = async () => {
       const { data, error } = await supabase.from('reviews').select('*');
@@ -38,7 +33,7 @@ const ReviewList: React.FC = () => {
         const sortedReviews = data?.sort((a, b) =>
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
-        setReviews(sortedReviews || []);
+      
         setFilteredReviews(sortedReviews || []);
       }
     };
@@ -46,24 +41,10 @@ const ReviewList: React.FC = () => {
     fetchReviews();
   }, []);
 
-  const handleSearch = (term: string) => {
-    setSearchTerm(term);
-    if (!term) {
-      setFilteredReviews(reviews);
-    } else {
-      const filtered = reviews.filter((review) => {
-        switch (searchType) {
-          case 'category':
-            return review.categories.some((category) => category.toLowerCase().includes(term.toLowerCase()));
-          default:
-            return review.title.toLowerCase().includes(term.toLowerCase()) || review.content.toLowerCase().includes(term.toLowerCase());
-        }
-      });
-      setFilteredReviews(filtered);
-    }
-  };
+
+
+
   const handleSort = (type: string) => {
-    setSortType(type);
     const sorted = [...filteredReviews].sort((a, b) => {
       switch (type) {
         case 'architecture':
@@ -71,13 +52,14 @@ const ReviewList: React.FC = () => {
         case 'desktop_environment':
           return a.desktop_environment.join(', ').localeCompare(b.desktop_environment.join(', '));
         case 'rating':
-          return b.rating - a.rating; // Sort by rating in descending order
+          return b.rating - a.rating; // Sortera efter rating i fallande ordning
         default:
           return 0;
       }
     });
     setFilteredReviews(sorted);
   };
+
   const getExcerpt = (content: string) => {
     return content.length > 150 ? content.substring(0, 150) + '...' : content;
   };
@@ -85,40 +67,32 @@ const ReviewList: React.FC = () => {
   return (
     <div className="bg-black min-h-screen text-white font-sans px-4 py-8 flex items-start justify-start w-screen">
       <div className="w-full max-w-6xl">
+        <div className="bg-gradient-to-r from-gray-700 via-gray-800 to-black p-6 rounded-lg shadow-lg mb-8">
+          <AdsSection placement="in-content" />
+        </div>
         <h1 className="text-3xl sm:text-4xl font-bold text-left text-cyan-500 mb-8">
           Reviews
         </h1>
         <div className="mb-4">
-  <label htmlFor="filter-sort" className="block text-cyan-400 mb-2">
-    Filter and Sort
-  </label>
-  <select
-    id="filter-sort"
-    className="p-2 bg-gray-800 text-cyan-400 border border-gray-600 rounded"
-    onChange={(e) => {
-      const value = e.target.value;
-      if (value === 'content' || value === 'category') {
-        setSearchType(value);
-      } else {
-        handleSort(value);
-      }
-    }}
-  >
-    <option value="">Select an option</option>
-    {/* Filter options */}
-    <optgroup label="Filter By">
-      <option value="content">Content</option>
-      <option value="category">Category</option>
-    </optgroup>
-    {/* Sort options */}
-    <optgroup label="Sort By">
-      <option value="architecture">Architecture</option>
-      <option value="desktop_environment">Desktop Environment</option>
-      <option value="rating">Rating</option>
-    </optgroup>
-  </select>
-
-</div>
+          <label htmlFor="filter-sort" className="block text-cyan-400 mb-2">
+            Filter and Sort
+          </label>
+          <select
+            id="filter-sort"
+            className="p-2 bg-gray-800 text-cyan-400 border border-gray-600 rounded"
+            onChange={(e) => {
+              const value = e.target.value;
+              handleSort(value); // Använd sorteringslogik
+            }}
+          >
+            <option value="">Select an option</option>
+            <optgroup label="Sort By">
+              <option value="architecture">Architecture</option>
+              <option value="desktop_environment">Desktop Environment</option>
+              <option value="rating">Rating</option>
+            </optgroup>
+          </select>
+        </div>
         
        
  
