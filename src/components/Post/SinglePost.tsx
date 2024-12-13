@@ -162,17 +162,20 @@ const [relatedPosts, setRelatedPosts] = useState<Post[]>([]);
     fetchPostBySlug();
   }, [slug]);
   
-  const fetchCommentsAndLikes = async (postId: any) => {
+  const fetchCommentsAndLikes = async (_postId: any) => {
     try {
-      // Implement logic for fetching comments and likes
-      console.log(`Fetching comments and likes for post ID: ${postId}`);
-    } catch (err) {
-      console.error('Error fetching comments and likes:', err.message);
-    }
-  };
+      // your code that may throw an error
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error('Error fetching comments and likes:', err.message);
+      } else {
+        console.error('An unknown error occurred');
+      }
+    };
+  }
   
 
-  const fetchRelatedPosts = async (categories: string[], tags: string[]) => {
+  const fetchRelatedPosts = async (categories: string[], _tags: string[]) => {
     try {
       // Convert categories to a format supported by Supabase for array overlap queries
       const categoryQuery = `{${categories.join(',')}}`;
@@ -237,6 +240,7 @@ const [relatedPosts, setRelatedPosts] = useState<Post[]>([]);
     } else {
       setLikesCount(likesData?.length || 0); // Count the number of likes
     }
+    fetchLikes('somePostId');
   };
 
   const toggleCommentReplies = (commentId: string) => {
@@ -380,9 +384,7 @@ const [relatedPosts, setRelatedPosts] = useState<Post[]>([]);
                 <h3 className="text-lg font-semibold text-cyan-300 mb-2">
                   {relatedPost.title}
                 </h3>
-                <p className="text-sm text-gray-400 line-clamp-3">
-                  {relatedPost.content.slice(0, 100)}...
-                </p>
+                
                 <button
                   onClick={() => navigate(`/posts/${relatedPost.slug}`)}
                   className="mt-4 bg-cyan-600 text-white px-4 py-2 rounded hover:bg-cyan-700"
