@@ -8,6 +8,7 @@ import AboutPage from './components/About/About';
 import ReviewList from './components/Review/ReviewList';
 import SingleReview from './components/Review/SingleReview';
 import ContactPage from './components/Contact/ContactPage';
+import GalleryPage from './components/Gallery/GalleryPage';
 const App: React.FC = () => {
   return (
     <Router>
@@ -16,10 +17,11 @@ const App: React.FC = () => {
           {/* Sidebar-komponenten */}
           <Sidebar />
           
-          <div className="ml-25 w-full p-8"> {/* Innehållet får plats utan att gå under sidomenyn */}
+          <div className="ml-25 w-full p-2"> {/* Innehållet får plats utan att gå under sidomenyn */}
             <Routes>
               <Route path="/" element={<PostList />} />
               <Route path="/archive" element={<ArchivePage />} />
+              <Route path="/wallpaper" element={<GalleryPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/post/:slug" element={<SinglePost />} /> 
               <Route path="/review/:slug" element={<SingleReview />} /> 

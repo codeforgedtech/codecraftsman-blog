@@ -32,10 +32,8 @@ const SingleReview: React.FC = () => {
     window.scrollTo(0, 0);
   }, []);
   const handleScrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth', // Gör scrollningen mjuk
-    });
+    window.scrollTo(0, 0);
+
   };
   useEffect(() => {
     const fetchReviewsBySlug = async () => {

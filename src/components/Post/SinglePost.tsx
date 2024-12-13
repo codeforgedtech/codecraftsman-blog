@@ -102,10 +102,8 @@ const [relatedPosts, setRelatedPosts] = useState<Post[]>([]);
     }
   };
   const handleScrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth', // Gör scrollningen mjuk
-    });
+    window.scrollTo(0, 0);
+
   };
   const handleReplySubmit = async (
     e: React.FormEvent,

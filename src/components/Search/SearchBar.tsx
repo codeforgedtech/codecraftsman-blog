@@ -15,7 +15,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ value, onSearch }) => {
       type="text"
       value={value} // Bind the input value to the passed value prop
       onChange={handleInputChange} // Trigger the onSearch function when the user types
-      className="sm:w-48 p-2 bg-gray-800 text-cyan-400 border border-gray-600 rounded text-sm sm:text-base"
+      className="sm:w-48 m-3 p-2 bg-gray-800 text-cyan-400 border border-gray-600 rounded text-sm sm:text-base"
       placeholder="Search..."
     />
   );

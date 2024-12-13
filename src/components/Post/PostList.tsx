@@ -192,7 +192,10 @@ const PostList: React.FC = () => {
     setModalVisible(false);
     window.location.reload();
   };
+  const handleScrollToTop = () => {
+    window.scrollTo(0, 0);
 
+  };
   return (
     <div className="bg-black min-h-screen text-white font-sans px-4 py-8 flex items-start justify-start w-screen">
     <div className="w-full max-w-6xl">
@@ -295,6 +298,7 @@ const PostList: React.FC = () => {
             <Link
               to={`/post/${post.slug}`}
               className="inline-block text-cyan-400 hover:text-cyan-300 mt-4 transition duration-300"
+              onClick={handleScrollToTop}
             >
               Read more <ChevronRightIcon className="h-5 w-5 inline-block" />
             </Link>

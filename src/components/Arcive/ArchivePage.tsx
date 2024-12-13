@@ -104,7 +104,10 @@ const ArchivePage: React.FC = () => {
     setCurrentPage(currentPage + 1);
     window.scrollTo(0, 0);
   };
+  const handleScrollToTop = () => {
+    window.scrollTo(0, 0);
 
+  };
   return (
     <div className="bg-black min-h-screen text-white font-sans px-4 py-8 flex items-start justify-start w-screen">
       <div className="w-full max-w-6xl">
@@ -205,6 +208,7 @@ const ArchivePage: React.FC = () => {
               <Link
                 to={`/${activeTab === 'posts' ? 'post' : 'review'}/${item.slug}`}
                 className="text-cyan-500 flex items-center space-x-2 mt-4"
+                onClick={handleScrollToTop}
               >
                 <span>Read More</span>
                 <ChevronRightIcon className="h-5 w-5" />

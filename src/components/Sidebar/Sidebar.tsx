@@ -7,7 +7,8 @@ import {
   CubeIcon, 
   StarIcon, 
   Bars3Icon, 
-  XMarkIcon 
+  XMarkIcon,
+  PhotoIcon 
 } from '@heroicons/react/24/solid';
 import logo from "../../assets/codelogo.svg"
 
@@ -89,6 +90,18 @@ const Sidebar: React.FC = () => {
             >
               <InformationCircleIcon className="h-8 w-8" />
               <span className="inline">About</span>
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/wallpaper"
+              onClick={() => handleLinkClick('wallpaper')}
+              className={`flex items-center space-x-3 text-cyan-500 
+              ${activeLink === 'contact' ? 'bg-cyan-500 text-white' : ''} 
+              rounded-full py-3 px-4 hover:bg-cyan-500 hover:text-white`}
+            >
+              <PhotoIcon className="h-8 w-8" />
+              <span className="inline">Wallpaper</span>
             </Link>
           </li>
           <li>
