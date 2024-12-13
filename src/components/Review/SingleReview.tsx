@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
 import DOMPurify from 'dompurify';
-import { CalendarIcon, HeartIcon } from '@heroicons/react/24/solid';
+import { CalendarIcon, ChevronRightIcon, HeartIcon } from '@heroicons/react/24/solid';
 import AdsSection from '../Ads/adsPage';
 
 interface Reviews {
@@ -31,7 +31,12 @@ const SingleReview: React.FC = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
+  const handleScrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth', // Gör scrollningen mjuk
+    });
+  };
   useEffect(() => {
     const fetchReviewsBySlug = async () => {
       if (slug) {
@@ -166,12 +171,14 @@ const SingleReview: React.FC = () => {
                     <p className="text-sm text-gray-300 mb-2">
                       Rating: {similarReview.rating}
                     </p>
-                    <button
-                      onClick={() => navigate(`/review/${similarReview.slug}`)}
-                      className="text-cyan-500 hover:text-cyan-400 text-sm"
-                    >
-                      Read More
-                    </button>
+                    <Link
+              to={`/review/${similarReview.slug}`}
+              className="inline-block text-cyan-400 hover:text-cyan-300 mt-4 transition duration-300"
+              onClick={handleScrollToTop}
+            >
+              Read more <ChevronRightIcon className="h-5 w-5 inline-block" />
+            </Link>
+                    
                   </div>
                 ))}
               </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom'; 
+import { useParams, useNavigate, Link } from 'react-router-dom'; 
 import { supabase } from '../../supabaseClient';
 import DOMPurify from 'dompurify';
 import AdsSection from '../Ads/adsPage';
@@ -9,6 +9,7 @@ import {
   HeartIcon,
   EyeIcon,
   ChatBubbleLeftIcon,
+  ChevronRightIcon,
 } from '@heroicons/react/24/solid';
 
 interface Post {
@@ -100,7 +101,12 @@ const [relatedPosts, setRelatedPosts] = useState<Post[]>([]);
       setErrorMessage('Ett oväntat fel inträffade.');
     }
   };
-
+  const handleScrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth', // Gör scrollningen mjuk
+    });
+  };
   const handleReplySubmit = async (
     e: React.FormEvent,
     commentId: string
@@ -384,13 +390,14 @@ const [relatedPosts, setRelatedPosts] = useState<Post[]>([]);
                 <h3 className="text-lg font-semibold text-cyan-300 mb-2">
                   {relatedPost.title}
                 </h3>
+                <Link
+              to={`/post/${relatedPost.slug}`}
+              className="inline-block text-cyan-400 hover:text-cyan-300 mt-4 transition duration-300"
+              onClick={handleScrollToTop}
+            >
+              Read more <ChevronRightIcon className="h-5 w-5 inline-block" />
+            </Link>
                 
-                <button
-                  onClick={() => navigate(`/posts/${relatedPost.slug}`)}
-                  className="mt-4 bg-cyan-600 text-white px-4 py-2 rounded hover:bg-cyan-700"
-                >
-                  Read More
-                </button>
               </div>
             ))}
           </div>
