@@ -4,6 +4,7 @@ import { supabase } from '../../supabaseClient';
 import DOMPurify from 'dompurify';
 import { CalendarIcon, HeartIcon } from '@heroicons/react/24/solid';
 import AdsSection from '../Ads/adsPage';
+
 interface Reviews {
   id: string;
   title: string;
@@ -24,11 +25,13 @@ interface Reviews {
 const SingleReview: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const [reviews, setReviews] = useState<Reviews | null>(null);
-  const navigate = useNavigate(); // Hook to navigate
+  const [similarReviews, setSimilarReviews] = useState<Reviews[]>([]);
+  const navigate = useNavigate();
+
   useEffect(() => {
-    // Scroll to top when component is mounted
     window.scrollTo(0, 0);
   }, []);
+
   useEffect(() => {
     const fetchReviewsBySlug = async () => {
       if (slug) {
@@ -43,9 +46,24 @@ const SingleReview: React.FC = () => {
         } else {
           setReviews(data);
           if (data) {
-            // Fetch likes count
+            fetchSimilarReviews(data.categories, data.id);
           }
         }
+      }
+    };
+
+    const fetchSimilarReviews = async (categories: string[], reviewId: string) => {
+      const { data, error } = await supabase
+        .from('reviews')
+        .select('*')
+        .contains('categories', categories)
+        .neq('id', reviewId)
+        .limit(4);
+
+      if (error) {
+        console.error('Error fetching similar reviews:', error.message);
+      } else {
+        setSimilarReviews(data || []);
       }
     };
 
@@ -63,10 +81,10 @@ const SingleReview: React.FC = () => {
   return (
     <div className="bg-black min-h-screen text-white font-sans px-4 py-8 flex items-start justify-start w-screen">
       <div className="w-full max-w-6xl">
-      <div className="bg-gradient-to-r from-gray-700 via-gray-800 to-black p-6 rounded-lg shadow-lg mb-8">
+        <div className="bg-gradient-to-r from-gray-700 via-gray-800 to-black p-6 rounded-lg shadow-lg mb-8">
+          <AdsSection placement="post-top" />
+        </div>
 
-<AdsSection placement="post-top" />
-</div>
         <div className="p-4 sm:p-6 bg-gradient-to-r from-gray-800 via-gray-900 to-black rounded-xl shadow-lg">
           <img
             src={reviews.imageUrl}
@@ -126,11 +144,44 @@ const SingleReview: React.FC = () => {
               <strong>Desktop Environment:</strong> {reviews.desktop_environment.join(', ')}
             </div>
           </div>
-          
+
+          {/* Similar Reviews */}
+          {similarReviews.length > 0 && (
+            <div className="mt-8">
+              <h2 className="text-2xl text-cyan-400 mb-4">Similar Reviews</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {similarReviews.map((similarReview) => (
+                  <div
+                    key={similarReview.id}
+                    className="p-4 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow"
+                  >
+                    <img
+                      src={similarReview.imageUrl}
+                      alt={similarReview.title}
+                      className="w-full h-40 object-cover rounded-lg mb-4"
+                    />
+                    <h3 className="text-lg font-semibold text-cyan-400 mb-2">
+                      {similarReview.title}
+                    </h3>
+                    <p className="text-sm text-gray-300 mb-2">
+                      Rating: {similarReview.rating}
+                    </p>
+                    <button
+                      onClick={() => navigate(`/review/${similarReview.slug}`)}
+                      className="text-cyan-500 hover:text-cyan-400 text-sm"
+                    >
+                      Read More
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Back Button */}
           <div className="mt-8 text-center">
             <button
-              onClick={() => navigate(-1)} // Navigates to the previous page
+              onClick={() => navigate(-1)}
               className="bg-cyan-700 text-white text-xs font-bold px-6 py-2 rounded hover:bg-cyan-600 transition duration-300"
             >
               Tillbaka
@@ -143,6 +194,7 @@ const SingleReview: React.FC = () => {
 };
 
 export default SingleReview;
+
 
 
 

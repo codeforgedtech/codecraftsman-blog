@@ -63,6 +63,9 @@ const SinglePost: React.FC = () => {
 const [replyName, setReplyName] = useState('');
 const [replyEmail, setReplyEmail] = useState('');
 const [showCommentForm, setShowCommentForm] = useState(true);
+const [relatedPosts, setRelatedPosts] = useState<Post[]>([]);
+
+
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -143,22 +146,62 @@ const [showCommentForm, setShowCommentForm] = useState(true);
           .select('*')
           .eq('slug', slug)
           .single();
-
+  
         if (error) {
           console.error('Error fetching post by slug:', error.message);
         } else {
           setPost(data);
           if (data) {
-            fetchCommentsAndReplies(data.id); // Fetch comments and replies
-            fetchLikes(data.id); // Fetch likes count
+            await fetchCommentsAndLikes(data.id); // Ensure this is awaited
+            await fetchRelatedPosts(data.categories, data.tags); // Fetch related posts
           }
         }
       }
     };
-
+  
     fetchPostBySlug();
   }, [slug]);
+  
+  const fetchCommentsAndLikes = async (postId: any) => {
+    try {
+      // Implement logic for fetching comments and likes
+      console.log(`Fetching comments and likes for post ID: ${postId}`);
+    } catch (err) {
+      console.error('Error fetching comments and likes:', err.message);
+    }
+  };
+  
 
+  const fetchRelatedPosts = async (categories: string[], tags: string[]) => {
+    try {
+      // Convert categories to a format supported by Supabase for array overlap queries
+      const categoryQuery = `{${categories.join(',')}}`;
+  
+      const { data, error } = await supabase
+        .from('posts')
+        .select('*')
+        .filter('categories', 'cs', categoryQuery) // Use 'cs' to check for overlap
+        .neq('slug', slug) // Exclude the current post
+        .limit(3);
+  
+      if (error) {
+        console.error('Error fetching related posts:', error.message);
+      } else {
+        setRelatedPosts(data || []);
+      }
+    } catch (err) {
+      console.error('Unexpected error fetching related posts:', err);
+    }
+  };
+  
+
+  if (!post) {
+    return (
+      <div className="bg-black min-h-screen flex items-center justify-center text-white">
+        <p>Loading...</p>
+      </div>
+    );
+  }
   const fetchCommentsAndReplies = async (postId: string) => {
     const { data: commentsData, error: commentsError } = await supabase
       .from('comments')
@@ -322,7 +365,36 @@ const [showCommentForm, setShowCommentForm] = useState(true);
               Tillbaka
             </button>
           </div>
+          <div className="mt-12">
+          <h2 className="text-2xl font-bold text-cyan-500 mb-6">Related Posts</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {relatedPosts.map((relatedPost) => (
+              <div key={relatedPost.id} className="bg-gray-800 p-4 rounded-lg shadow-lg">
+                {relatedPost.images[0] && (
+                  <img
+                    src={relatedPost.images[0]}
+                    alt={relatedPost.title}
+                    className="w-full h-40 object-cover rounded-lg mb-4"
+                  />
+                )}
+                <h3 className="text-lg font-semibold text-cyan-300 mb-2">
+                  {relatedPost.title}
+                </h3>
+                <p className="text-sm text-gray-400 line-clamp-3">
+                  {relatedPost.content.slice(0, 100)}...
+                </p>
+                <button
+                  onClick={() => navigate(`/posts/${relatedPost.slug}`)}
+                  className="mt-4 bg-cyan-600 text-white px-4 py-2 rounded hover:bg-cyan-700"
+                >
+                  Read More
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
+        </div>
+        
         {showComments && (
           <div className="mt-6">
   <h3 className="text-2xl font-semibold mb-6 text-cyan-200">Comments</h3>

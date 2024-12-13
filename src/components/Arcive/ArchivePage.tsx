@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../supabaseClient';
-import { CalendarIcon, ChevronRightIcon, EyeIcon, ChatBubbleLeftIcon, ArrowRightIcon, ArrowLeftIcon } from '@heroicons/react/24/solid';
-import AdsSection from '../Ads/adsPage';
+import {
+  CalendarIcon,
+  ChevronRightIcon,
+  ArrowRightIcon,
+  ArrowLeftIcon,
+} from '@heroicons/react/24/solid';
 import { Link } from 'react-router-dom';
+import AdsSection from '../Ads/adsPage';
 
-interface PostList {
+interface Post {
   id: string;
   title: string;
   content: string;
@@ -17,207 +22,190 @@ interface PostList {
   views: number;
 }
 
-interface Comment {
+interface Review {
   id: string;
-  post_id: string;
+  title: string;
   content: string;
+  rating: number;
+  imageUrl: string;
   created_at: string;
+  version: string;
+  os_type: string;
+  origin: string;
+  desktop_environment: string[];
+  categories: string[];
+  based_on: string[];
+  architecture: string[];
+  slug: string;
 }
 
 const ArchivePage: React.FC = () => {
-  const [posts, setPosts] = useState<PostList[]>([]);
-  const [filteredPosts, setFilteredPosts] = useState<PostList[]>([]);
+  const [activeTab, setActiveTab] = useState<'posts' | 'reviews'>('posts');
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [filteredItems, setFilteredItems] = useState<(Post | Review)[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [postsPerPage] = useState(5);  // Justera antal inlägg per sida
-  const [sortOption, setSortOption] = useState('date');  // Standard sortering efter datum
-   // State för söktermen
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [commentSortOrder, setCommentSortOrder] = useState<'asc' | 'desc'>('desc');  // Nytt tillstånd för att växla mellan stigande och fallande
-  useEffect(() => {
-    // Scroll to top when component is mounted
-    window.scrollTo(0, 0);
-  }, []);
+  const [itemsPerPage] = useState(5);
+  const [sortOption, setSortOption] = useState('date');
+
   useEffect(() => {
     const fetchPosts = async () => {
       const { data, error } = await supabase.from('posts').select('*');
       if (error) {
         console.error('Error fetching posts:', error.message);
       } else {
-        const sortedPosts = sortPosts(data || []);
-        setPosts(sortedPosts);
-        setFilteredPosts(sortedPosts);
+        setPosts(data || []);
+      }
+    };
+
+    const fetchReviews = async () => {
+      const { data, error } = await supabase.from('reviews').select('*');
+      if (error) {
+        console.error('Error fetching reviews:', error.message);
+      } else {
+        setReviews(data || []);
       }
     };
 
     fetchPosts();
+    fetchReviews();
   }, []);
 
   useEffect(() => {
-    const fetchComments = async () => {
-      const { data, error } = await supabase
-        .from('comments') // Ersätt med din tabellnamn
-        .select('*');
+    const items = activeTab === 'posts' ? posts : reviews;
+    const sortedItems = sortItems(items);
+    setFilteredItems(sortedItems);
+  }, [activeTab, posts, reviews, sortOption]);
 
-      if (error) {
-        console.error("Error fetching comments:", error);
-      } else {
-        setComments(data);
-      }
-    };
-
-    fetchComments();
-  }, []);
-
-  const sortPosts = (posts: PostList[]) => {
+  const sortItems = (items: (Post | Review)[]) => {
     if (sortOption === 'date') {
-      return posts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-    } else if (sortOption === 'views') {
-      return posts.sort((a, b) => b.views - a.views);
-    }
-    return posts;
-  };
-
-  const handleSortChange = (option: string) => {
-    setSortOption(option); // Uppdatera det valda sorteringsalternativet
-
-    let sortedPosts: PostList[] = [];
-
-    switch (option) {
-      case 'date':
-        sortedPosts = [...posts].sort((a, b) =>
+      return [...items].sort(
+        (a, b) =>
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        );
-        break;
-      case 'views':
-        sortedPosts = [...posts].sort((a, b) => b.views - a.views);
-        break;
-      case 'category':
-        sortedPosts = [...posts].sort((a, b) => {
-          const categoryA = a.categories[0] || '';
-          const categoryB = b.categories[0] || '';
-          return categoryA.localeCompare(categoryB);
-        });
-        break;
-      case 'comments':
-        sortedPosts = [...posts].sort((a, b) => {
-          const commentCountA = getCommentCount(a.id);
-          const commentCountB = getCommentCount(b.id);
-          return commentSortOrder === 'desc' 
-            ? commentCountB - commentCountA 
-            : commentCountA - commentCountB; // Sortera efter kommentarer, baserat på vald ordning
-        });
-        break;
-      default:
-        sortedPosts = [...posts]; // Om inget alternativ är valt, visa som vanligt
+      );
+    } else if (sortOption === 'rating' && activeTab === 'reviews') {
+      return [...(items as Review[])].sort((a, b) => b.rating - a.rating);
+    } else if (sortOption === 'views' && activeTab === 'posts') {
+      return [...(items as Post[])].sort((a, b) => b.views - a.views);
     }
-
-    setFilteredPosts(sortedPosts);
+    return items;
   };
 
-  const getCommentCount = (postId: string) => {
-    const postComments = comments.filter((comment) => comment.post_id === postId);
-    return postComments.length;
-  };
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
 
-  const handleCombinedChange = (value: string) => {
-    if (value.startsWith('comments-')) {
-      const order = value.split('-')[1];
-      toggleCommentSortOrder(order); // Funktion för att ändra kommentarsordning
-    } else {
-      handleSortChange(value); // Funktion för att ändra sortering
-    }
-  };
-
-  // Beräkna vilka inlägg som ska visas baserat på aktuell sida
-  const indexOfLastPost = currentPage * postsPerPage;
-  const indexOfFirstPost = indexOfLastPost - postsPerPage;
-  const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
-
-  // Byt till föregående sida
   const paginatePrev = () => {
     setCurrentPage(currentPage - 1);
-    window.scrollTo(0, 0); // Rullar till toppen
+    window.scrollTo(0, 0);
   };
 
   const paginateNext = () => {
     setCurrentPage(currentPage + 1);
-    window.scrollTo(0, 0); // Rullar till toppen
-  };
-
-  const toggleCommentSortOrder = (_order: string) => {
-    setCommentSortOrder((prev) => (prev === 'desc' ? 'asc' : 'desc'));
-    handleSortChange('comments'); // Uppdatera sorteringen baserat på den nya ordningen
+    window.scrollTo(0, 0);
   };
 
   return (
     <div className="bg-black min-h-screen text-white font-sans px-4 py-8 flex items-start justify-start w-screen">
-    <div className="w-full max-w-6xl">
-    <div className="bg-gradient-to-r from-gray-700 via-gray-800 to-black p-6 rounded-lg shadow-lg mb-8">
+      <div className="w-full max-w-6xl">
+      <div className="bg-gradient-to-r from-gray-700 via-gray-800 to-black p-6 rounded-lg shadow-lg mb-8">
+          <AdsSection placement="in-content" />
+        </div>
+        <h1 className="text-3xl sm:text-4xl font-bold text-left text-cyan-500 mb-8">
+          {activeTab === 'posts' ? 'Posts Archive' : 'Reviews Archive'}
+        </h1>
 
-<AdsSection placement="in-content" />
-</div>
-        <h1 className="text-3xl sm:text-4xl font-bold text-left text-cyan-500 mb-8">Archive</h1>
+        {/* Tab Selector */}
+        <div className="flex space-x-4 mb-8">
+          <button
+            onClick={() => setActiveTab('posts')}
+            className={`px-4 py-2 rounded ${
+              activeTab === 'posts'
+                ? 'bg-cyan-600 text-white'
+                : 'bg-gray-800 text-cyan-400'
+            }`}
+          >
+            Posts
+          </button>
+          <button
+            onClick={() => setActiveTab('reviews')}
+            className={`px-4 py-2 rounded ${
+              activeTab === 'reviews'
+                ? 'bg-cyan-600 text-white'
+                : 'bg-gray-800 text-cyan-400'
+            }`}
+          >
+            Reviews
+          </button>
+        </div>
 
+        {/* Sort Options */}
         <div className="mb-4 flex flex-col sm:flex-row gap-4">
-  <div className="w-full sm:w-auto">
-    <label htmlFor="combined-options" className="block text-cyan-400 mb-2">
-      Select Option
-    </label>
-    <select
-      id="combined-options"
-      onChange={(e) => handleCombinedChange(e.target.value)}
-      value={sortOption}
-      className="w-full sm:w-auto px-4 py-2 rounded bg-gray-800 text-cyan-400 border border-gray-600"
-    >
-      <optgroup label="Sort Options">
-        <option value="date">Sort by Date</option>
-        <option value="views">Sort by Views</option>
-        <option value="category">Sort by Category</option>
-        <option value="comments">Sort by Comments</option>
-      </optgroup>
-      <optgroup label="Comment Order">
-        <option value="comments-desc">Descending Comments</option>
-        <option value="comments-asc">Ascending Comments</option>
-      </optgroup>
-    </select>
-  </div>
-</div>
+          <div className="w-full sm:w-auto">
+            <label htmlFor="sort-options" className="block text-cyan-400 mb-2">
+              Sort {activeTab === 'posts' ? 'Posts' : 'Reviews'}
+            </label>
+            <select
+              id="sort-options"
+              onChange={(e) => setSortOption(e.target.value)}
+              value={sortOption}
+              className="w-full sm:w-auto px-4 py-2 rounded bg-gray-800 text-cyan-400 border border-gray-600"
+            >
+              <option value="date">Sort by Date</option>
+              {activeTab === 'posts' && <option value="views">Sort by Views</option>}
+              {activeTab === 'reviews' && (
+                <option value="rating">Sort by Rating</option>
+              )}
+            </select>
+          </div>
+        </div>
 
-
-        
-
+        {/* Items List */}
         <ul className="space-y-6">
-          {currentPosts.map((post) => (
-            <li key={post.id} className="p-4 sm:p-6 bg-gradient-to-r from-gray-800 via-gray-900 to-black rounded-xl shadow-lg">
-              {post.images[0] && (
+          {currentItems.map((item: Post | Review) => (
+            <li
+              key={item.id}
+              className="p-4 sm:p-6 bg-gradient-to-r from-gray-800 via-gray-900 to-black rounded-xl shadow-lg"
+            >
+              {'images' in item && item.images[0] && (
                 <img
-                  src={post.images[0]}
-                  alt={post.title}
+                  src={item.images[0]}
+                  alt={item.title}
                   className="w-full h-64 object-cover rounded-lg mb-4 border-4 border-cyan-500 shadow-xl"
                 />
               )}
-              <h2 className="text-xl sm:text-2xl font-semibold text-cyan-400 mb-4 hover:text-cyan-300 transition duration-300">{post.title}</h2>
-             
+              {'imageUrl' in item && item.imageUrl && (
+                <img
+                  src={item.imageUrl}
+                  alt={item.title}
+                  className="w-full h-64 object-cover rounded-lg mb-4 border-4 border-cyan-500 shadow-xl"
+                />
+              )}
+              <h2 className="text-xl sm:text-2xl font-semibold text-cyan-400 mb-4 hover:text-cyan-300 transition duration-300">
+                {item.title}
+              </h2>
+
               <div className="flex justify-between items-center text-sm text-gray-500">
                 <span className="flex items-center space-x-1">
                   <CalendarIcon className="h-5 w-5" />
-                  <span>{new Date(post.created_at).toLocaleDateString()}</span>
+                  <span>{new Date(item.created_at).toLocaleDateString()}</span>
                 </span>
-                <span className="flex items-center space-x-1">
-                  <EyeIcon className="h-5 w-5" />
-                  <span>{post.views}</span>
-                </span>
-                <span className="flex items-center space-x-1">
-                  <ChatBubbleLeftIcon className="h-5 w-5" />
-                  <span>{getCommentCount(post.id)}</span>
-                </span>
-                {post.categories.length > 0 && (
-                  <span className="text-sm bg-cyan-600 text-white px-3 py-1 rounded-full">
-                    {post.categories[0]}
+                {'rating' in item && (
+                  <span className="text-yellow-400 font-semibold">
+                    Rating: {item.rating}
+                  </span>
+                )}
+                {'views' in item && (
+                  <span className="text-cyan-400 font-semibold">
+                    Views: {item.views}
                   </span>
                 )}
               </div>
-              <Link to={`/post/${post.slug}`} className="text-cyan-500 flex items-center space-x-2 mt-4">
+
+              <Link
+                to={`/${activeTab === 'posts' ? 'post' : 'review'}/${item.slug}`}
+                className="text-cyan-500 flex items-center space-x-2 mt-4"
+              >
                 <span>Read More</span>
                 <ChevronRightIcon className="h-5 w-5" />
               </Link>
@@ -225,30 +213,32 @@ const ArchivePage: React.FC = () => {
           ))}
         </ul>
 
+        {/* Pagination */}
         <div className="flex justify-center sm:justify-between items-center mt-8">
-  <button
-    className="px-4 py-2 bg-cyan-600 text-white rounded-md hover:bg-cyan-700 disabled:opacity-50"
-    onClick={paginatePrev}
-    disabled={currentPage === 1}
-  >
-   <ArrowLeftIcon className="h-5 w-5" />
-  </button>
-  <span className="mx-4 text-cyan-400 font-semibold">
-    {currentPage} of {Math.ceil(filteredPosts.length / postsPerPage)}
-  </span>
-  <button
-    className="px-4 py-2 bg-cyan-600 text-white rounded-md hover:bg-cyan-700 disabled:opacity-50"
-    onClick={paginateNext}
-    disabled={indexOfLastPost >= filteredPosts.length}
-  >
-    <ArrowRightIcon className="h-5 w-5" />
-  </button>
-</div>
+          <button
+            className="px-4 py-2 bg-cyan-600 text-white rounded-md hover:bg-cyan-700 disabled:opacity-50"
+            onClick={paginatePrev}
+            disabled={currentPage === 1}
+          >
+            <ArrowLeftIcon className="h-5 w-5" />
+          </button>
+          <span className="mx-4 text-cyan-400 font-semibold">
+            {currentPage} of {Math.ceil(filteredItems.length / itemsPerPage)}
+          </span>
+          <button
+            className="px-4 py-2 bg-cyan-600 text-white rounded-md hover:bg-cyan-700 disabled:opacity-50"
+            onClick={paginateNext}
+            disabled={indexOfLastItem >= filteredItems.length}
+          >
+            <ArrowRightIcon className="h-5 w-5" />
+          </button>
+        </div>
       </div>
     </div>
   );
 };
 
 export default ArchivePage;
+
 
 
