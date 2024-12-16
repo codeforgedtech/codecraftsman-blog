@@ -53,9 +53,30 @@
             },
             {
               src: 'https://codecraftsman.se/wallpaper/codecraftsman8t.jpg',
-              alt: 'Wallpaper 6',
+              alt: 'Wallpaper 8',
               link: 'https://codecraftsman.se/wallpaper/codecraftsman8.jpg',
             },
+            {
+                src: 'https://codecraftsman.se/wallpaper/codecraftsman9t.jpg',
+                alt: 'Wallpaper 6',
+                link: 'https://codecraftsman.se/wallpaper/codecraftsman9.jpg',
+              },
+              {
+                src: 'https://codecraftsman.se/wallpaper/codecraftsman10t.jpg',
+                alt: 'Wallpaper 6',
+                link: 'https://codecraftsman.se/wallpaper/codecraftsman10.jpg',
+              },
+              {
+                src: 'https://codecraftsman.se/wallpaper/codecraftsman11t.jpg',
+                alt: 'Wallpaper 6',
+                link: 'https://codecraftsman.se/wallpaper/codecraftsman11.jpg',
+
+              },
+              {
+                src: 'https://codecraftsman.se/wallpaper/codecraftsman12t.jpg',
+                alt: 'Wallpaper 6',
+                link: 'https://codecraftsman.se/wallpaper/codecraftsman12.jpg',
+              },
     ];
   
     const openModal = (image: Image) => {
@@ -78,7 +99,7 @@
         
         <h1 className="text-3xl sm:text-4xl font-bold text-left text-cyan-500 mb-8">Gallery</h1>
   
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4 bg-gradient-to-r from-gray-800 via-gray-900 to-black rounded-xl shadow-lg">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-2 bg-gradient-to-r from-gray-800 via-gray-900 to-black rounded-xl shadow-lg">
           {images.map((image, index) => (
             <div
               key={index}
