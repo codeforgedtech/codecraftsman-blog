@@ -17,7 +17,7 @@ const App: React.FC = () => {
           {/* Sidebar-komponenten */}
           <Sidebar />
           
-          <div className="ml-25 w-full p-2"> {/* Innehållet får plats utan att gå under sidomenyn */}
+          <div className="ml-25 w-full"> {/* Innehållet får plats utan att gå under sidomenyn */}
             <Routes>
               <Route path="/" element={<PostList />} />
               <Route path="/archive" element={<ArchivePage />} />

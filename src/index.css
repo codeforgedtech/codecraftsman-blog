@@ -38,7 +38,10 @@ h1 {
   font-size: 3.2em;
   line-height: 1.1;
 }
-
+.container {
+  max-width: 100%; /* Hindrar breda element från att sticka ut */
+  overflow: hidden;
+}
 button {
   border-radius: 8px;
   border: 1px solid transparent;

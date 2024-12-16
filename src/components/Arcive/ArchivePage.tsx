@@ -111,7 +111,7 @@ const ArchivePage: React.FC = () => {
   return (
     <div className="bg-black min-h-screen text-white font-sans px-4 py-8 flex items-start justify-start w-screen">
       <div className="w-full max-w-6xl">
-      <div className="bg-gradient-to-r from-gray-700 via-gray-800 to-black p-6 rounded-lg shadow-lg mb-8">
+      <div className="p-1 rounded-lg shadow-lg mp-2">
           <AdsSection placement="in-content" />
         </div>
         <h1 className="text-3xl sm:text-4xl font-bold text-left text-cyan-500 mb-8">
