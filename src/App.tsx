@@ -9,6 +9,7 @@ import ReviewList from './components/Review/ReviewList';
 import SingleReview from './components/Review/SingleReview';
 import ContactPage from './components/Contact/ContactPage';
 import GalleryPage from './components/Gallery/GalleryPage';
+import StorePage from './components/Store/StorePage';
 const App: React.FC = () => {
   return (
     <Router>
@@ -23,6 +24,7 @@ const App: React.FC = () => {
               <Route path="/archive" element={<ArchivePage />} />
               <Route path="/wallpaper" element={<GalleryPage />} />
               <Route path="/about" element={<AboutPage />} />
+              <Route path="/store" element={<StorePage />} />
               <Route path="/post/:slug" element={<SinglePost />} /> 
               <Route path="/review/:slug" element={<SingleReview />} /> 
               <Route path="/reviews" element={<ReviewList />} /> 
