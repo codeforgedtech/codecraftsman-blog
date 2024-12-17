@@ -35,6 +35,34 @@ const StorePage: React.FC = () => {
         image: 'https://codecraftsman.se/store/cup2.png',
         description: 'A Multicolor Mug with the logo for CodeCraftsMan',
       },
+      {
+        id: 4,
+        name: 'Womens T-Shirt',
+        price: '23.49 €',
+        image: 'https://codecraftsman.se/store/shirtW.png',
+        description: 'Womens T-Shirt with the logo for CodeCraftsMan',
+      },
+      {
+        id: 5,
+        name: 'Mens T-Shirt',
+        price: '23.49 €',
+        image: 'https://codecraftsman.se/store/shirtM.png',
+        description: 'Mens T-Shirt with the logo for CodeCraftsMan',
+      },
+      {
+        id: 6,
+        name: 'Womens Premium Tank Top',
+        price: '25.99 €',
+        image: 'https://codecraftsman.se/store/linneW.png',
+        description: 'Womens Premium Tank Top with the logo for CodeCraftsMan',
+      },
+      {
+        id: 7,
+        name: 'Mens Premium Hooded Jacket',
+        price: '43.49 €',
+        image: 'https://codecraftsman.se/store/jacketM.png',
+        description: 'Mens Premium Hooded Jacketwith the logo for CodeCraftsMan',
+      },
     // Add more products as needed
   ];
 
