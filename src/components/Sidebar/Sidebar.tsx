@@ -8,7 +8,8 @@ import {
   StarIcon, 
   Bars3Icon, 
   XMarkIcon,
-  PhotoIcon 
+  PhotoIcon, 
+  ShoppingBagIcon
 } from '@heroicons/react/24/solid';
 import logo from "../../assets/codelogo.svg"
 
@@ -60,7 +61,7 @@ const Sidebar: React.FC = () => {
       onClick={() => handleLinkClick('home')}
       className={`flex items-center space-x-3 text-cyan-500 
       ${activeLink === 'home' ? 'bg-cyan-500 text-white' : ''} 
-      rounded-full py-3 px-4 hover:bg-cyan-500 hover:text-white`}
+      rounded-full py-1 px-4 hover:bg-cyan-500 hover:text-white`}
     >
       <HomeIcon className="h-8 w-8" />
       <span className="inline">Home</span> {/* Ändrat här */}
@@ -73,20 +74,31 @@ const Sidebar: React.FC = () => {
               onClick={() => handleLinkClick('archive')}
               className={`flex items-center space-x-3 text-cyan-500 
               ${activeLink === 'archive' ? 'bg-cyan-500 text-white' : ''} 
-              rounded-full py-3 px-4 hover:bg-cyan-500 hover:text-white`}
+              rounded-full py-1 px-4 hover:bg-cyan-500 hover:text-white`}
             >
               <ArchiveBoxIcon className="h-8 w-8" />
               <span className="inline">Archive</span>
             </Link>
           </li>
-         
+          <li>
+            <Link
+              to="/store"
+              onClick={() => handleLinkClick('store')}
+              className={`flex items-center space-x-3 text-cyan-500 
+              ${activeLink === 'store' ? 'bg-cyan-500 text-white' : ''} 
+              rounded-full py-1 px-4 hover:bg-cyan-500 hover:text-white`}
+            >
+              <ShoppingBagIcon className="h-8 w-8" />
+              <span className="inline">Store</span>
+            </Link>
+          </li>
           <li>
             <Link
               to="/about"
               onClick={() => handleLinkClick('about')}
               className={`flex items-center space-x-3 text-cyan-500 
               ${activeLink === 'about' ? 'bg-cyan-500 text-white' : ''} 
-              rounded-full py-3 px-4 hover:bg-cyan-500 hover:text-white`}
+              rounded-full py-1 px-4 hover:bg-cyan-500 hover:text-white`}
             >
               <InformationCircleIcon className="h-8 w-8" />
               <span className="inline">About</span>
@@ -97,8 +109,8 @@ const Sidebar: React.FC = () => {
               to="/wallpaper"
               onClick={() => handleLinkClick('wallpaper')}
               className={`flex items-center space-x-3 text-cyan-500 
-              ${activeLink === 'contact' ? 'bg-cyan-500 text-white' : ''} 
-              rounded-full py-3 px-4 hover:bg-cyan-500 hover:text-white`}
+              ${activeLink === 'wallpaper' ? 'bg-cyan-500 text-white' : ''} 
+              rounded-full py-1 px-4 hover:bg-cyan-500 hover:text-white`}
             >
               <PhotoIcon className="h-8 w-8" />
               <span className="inline">Wallpaper</span>
@@ -110,7 +122,7 @@ const Sidebar: React.FC = () => {
               onClick={() => handleLinkClick('contact')}
               className={`flex items-center space-x-3 text-cyan-500 
               ${activeLink === 'contact' ? 'bg-cyan-500 text-white' : ''} 
-              rounded-full py-3 px-4 hover:bg-cyan-500 hover:text-white`}
+              rounded-full py-1 px-4 hover:bg-cyan-500 hover:text-white`}
             >
               <CubeIcon className="h-8 w-8" />
               <span className="inline">Contact</span>
@@ -122,7 +134,7 @@ const Sidebar: React.FC = () => {
               onClick={() => handleLinkClick('reviews')}
               className={`flex items-center space-x-3 text-cyan-500 
               ${activeLink === 'reviews' ? 'bg-cyan-500 text-white' : ''} 
-              rounded-full py-3 px-4 hover:bg-cyan-500 hover:text-white`}
+              rounded-full py-1 px-4 hover:bg-cyan-500 hover:text-white`}
             >
               <StarIcon className="h-8 w-8" />
               <span className="inline">Reviews</span>
