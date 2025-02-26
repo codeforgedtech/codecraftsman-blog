@@ -187,7 +187,30 @@ button:focus-visible {
     font-size: 0.75rem;  /* Ännu mindre textstorlek för beskrivningen */
   }
 }
+p {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+.content-container {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+pre {
+  background-color: #1e1e1e; /* Mörk terminalbakgrund */
+  color: lightblue; /* Grön text, typiskt för terminaler */
+  padding: 10px;
+  border-radius: 8px;
+  overflow-x: auto; /* Scrollbar vid långa kommandon */
+  font-family: "Courier New", monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
 
+code {
+  font-family: "Courier New", monospace;
+}
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

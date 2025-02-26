@@ -109,7 +109,7 @@ const Sidebar: React.FC = () => {
               to="/wallpaper"
               onClick={() => handleLinkClick('wallpaper')}
               className={`flex items-center space-x-3 text-cyan-500 
-              ${activeLink === 'contact' ? 'bg-cyan-500 text-white' : ''} 
+              ${activeLink === 'wallpaper' ? 'bg-cyan-500 text-white' : ''} 
               rounded-full py-1 px-4 hover:bg-cyan-500 hover:text-white`}
             >
               <PhotoIcon className="h-8 w-8" />
