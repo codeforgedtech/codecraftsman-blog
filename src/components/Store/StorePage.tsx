@@ -152,6 +152,9 @@ const StorePage: React.FC = () => {
         <div className="p-1 rounded-lg shadow-lg mb-4">
           <AdsSection placement="in-content" />
         </div>
+        <div className="bg-cyan-500 text-black text-center py-2 font-semibold text-lg mb-6">
+          Open Soon! Stay Tuned for Exciting New Products.
+        </div>
 
         <h1 className="text-3xl sm:text-4xl font-bold text-left text-cyan-500 mb-8">
           Store

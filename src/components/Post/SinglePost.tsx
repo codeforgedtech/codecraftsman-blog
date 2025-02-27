@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "../../supabaseClient";
 import DOMPurify from "dompurify";
+import AdsSection from "../Ads/adsPage";
+import { CalendarIcon, UserIcon } from "@heroicons/react/20/solid";
 
 // Post, Comment, and Reply interfaces
 interface Post {
@@ -38,7 +40,12 @@ interface Reply {
   created_at: string;
   parent_reply_id: string | null;
 }
-
+interface User {
+  id: string;
+  email: string;
+  full_name: string;
+  avatar_url: string;
+}
 const SinglePost: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
 
@@ -49,6 +56,7 @@ const SinglePost: React.FC = () => {
   const [showComments] = useState(true);
   const [expandedComments, setExpandedComments] = useState<string[]>([]);
   const [, setLikesCount] = useState<number>(0);
+  const [users, setUsers] = useState<User[]>([]);
   const [newComment, setNewComment] = useState("");
   const [commentName, setCommentName] = useState("");
   const [commentEmail, setCommentEmail] = useState("");
@@ -92,7 +100,43 @@ const SinglePost: React.FC = () => {
     fetchPostBySlug();
   }, [slug]);
 
-  // Fetch comments and likes for the post
+  const fetchUsers = async () => {
+    const userId = "2db5aa97-71a0-43d4-a29d-b6a8670d00e9"; // Sätt ditt user_id här
+
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", userId)
+      .single();
+
+    if (userError) {
+      console.error("Kunde inte hämta användardata:", userError.message);
+    } else {
+      setUsers([userData]); // Uppdatera state med den hämtade användaren
+    }
+  };
+
+  useEffect(() => {
+    const fetchPostBySlug = async () => {
+      if (slug) {
+        const { data, error } = await supabase
+          .from("posts")
+          .select("*")
+          .eq("slug", slug)
+          .single();
+
+        if (error) {
+          console.error("Error fetching post by slug:", error.message);
+        } else {
+          setPost(data);
+          await fetchCommentsAndLikes(data.id); // Hämta kommentarer och likes
+          await fetchUsers(); // Hämta den inloggade användaren
+        }
+      }
+    };
+
+    fetchPostBySlug();
+  }, [slug]);
   const fetchCommentsAndLikes = async (postId: string) => {
     const { data: commentsData, error: commentsError } = await supabase
       .from("comments")
@@ -366,6 +410,10 @@ const SinglePost: React.FC = () => {
   return (
     <div className="bg-black min-h-screen text-white font-sans px-4 py-8 flex items-start justify-start w-screen">
       <div className="w-full max-w-6xl">
+        <div className="p-1 rounded-lg shadow-lg mp-2">
+          <AdsSection placement="post-top" />
+        </div>
+
         {/* Post Details Section */}
         <h1 className="text-3xl sm:text-4xl font-bold text-left text-cyan-500 mb-8">
           {post.title}
@@ -378,12 +426,26 @@ const SinglePost: React.FC = () => {
               className="w-full h-64 object-cover rounded-lg mb-4 border-4 border-cyan-500 shadow-xl"
             />
           )}
+
           <div
             className="text-sm sm:text-lg text-gray-300 mb-4 whitespace-pre-wrap break-words overflow-auto"
             dangerouslySetInnerHTML={{
               __html: DOMPurify.sanitize(post.content),
             }}
           />
+
+          {/* Datum och användarnamn placerat under texten */}
+          <div className="flex justify-between text-xs sm:text-sm text-gray-400 mt-4">
+            <div className="flex items-center">
+              <CalendarIcon className="h-5 w-5 text-cyan-400 mr-2" />
+              <span>{new Date(post.created_at).toLocaleDateString()}</span>
+            </div>
+
+            <div className="flex items-center">
+              <UserIcon className="h-5 w-5 text-cyan-400 mr-2" />
+              <span>{users.length > 0 && users[0].full_name}</span>
+            </div>
+          </div>
         </div>
 
         {/* Comments Section */}
