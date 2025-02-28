@@ -226,10 +226,10 @@ const ContactPage = () => {
             </ul>
           </section>
           <section className="text-center mt-8">
-            <h2 className="text-2xl sm:text-3xl font-semibold text-cyan-400 mb-4">
+            <h2 className="text-2xl sm:text-2xl font-semibold text-cyan-400 mb-4">
               Connect with me on GitHub
             </h2>
-            <p className="text-gray-300 leading-relaxed mb-6">
+            <p className="text-gray-300 leading-relaxed sm-2">
               Feel free to check out my GitHub profile and explore my projects.
               You can also follow me to stay updated on my latest work.
             </p>
@@ -244,7 +244,7 @@ const ContactPage = () => {
                 <img
                   src="https://img.shields.io/github/followers/codeforgedtech?style=social"
                   alt="GitHub Followers"
-                  className="h-10" // Justering av storleken
+                  className="h-6" // Justering av storleken
                 />
               </a>
               {/* GitHub Stars Badge */}
@@ -257,9 +257,25 @@ const ContactPage = () => {
                 <img
                   src="https://img.shields.io/github/stars/codeforgedtech?style=social"
                   alt="GitHub Stars"
-                  className="h-10" // Justering av storleken
+                  className="h-6" // Justering av storleken
                 />
               </a>
+              <img
+                src="https://img.shields.io/github/last-commit/codeforgedtech/codecraftsman-blog?style=social"
+                alt="Last commit"
+                className="h-6"
+              />
+              <img
+                src="https://img.shields.io/github/forks/codeforgedtech/codecraftsman-blog?style=social"
+                alt="GitHub Forks"
+                className="h-6
+                "
+              />
+              <img
+                src="https://img.shields.io/github/license/codeforgedtech/codecraftsman-blog?style=social"
+                alt="GitHub License"
+                className="h-6"
+              />
             </div>
           </section>
         </div>
