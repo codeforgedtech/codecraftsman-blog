@@ -1,9 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { supabase } from '../../supabaseClient';
-import DOMPurify from 'dompurify';
-import { CalendarIcon, ChevronRightIcon, HeartIcon } from '@heroicons/react/24/solid';
-import AdsSection from '../Ads/adsPage';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { supabase } from "../../supabaseClient";
+import DOMPurify from "dompurify";
+import {
+  CalendarIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  StarIcon,
+} from "@heroicons/react/24/solid";
+import AdsSection from "../Ads/adsPage";
 
 interface Reviews {
   id: string;
@@ -21,7 +26,16 @@ interface Reviews {
   categories: string[];
   slug: string;
 }
-
+const RatingStars: React.FC<{ rating: number }> = ({ rating }) => {
+  const maxStars = 5;
+  return (
+    <div className="flex items-center space-x-1">
+      {[...Array(Math.min(rating, maxStars))].map((_, i) => (
+        <StarIcon key={i} className="h-5 w-5 text-yellow-400" />
+      ))}
+    </div>
+  );
+};
 const SingleReview: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const [reviews, setReviews] = useState<Reviews | null>(null);
@@ -33,19 +47,18 @@ const SingleReview: React.FC = () => {
   }, []);
   const handleScrollToTop = () => {
     window.scrollTo(0, 0);
-
   };
   useEffect(() => {
     const fetchReviewsBySlug = async () => {
       if (slug) {
         const { data, error } = await supabase
-          .from('reviews')
-          .select('*')
-          .eq('slug', slug)
+          .from("reviews")
+          .select("*")
+          .eq("slug", slug)
           .single();
 
         if (error) {
-          console.error('Error fetching post by slug:', error.message);
+          console.error("Error fetching post by slug:", error.message);
         } else {
           setReviews(data);
           if (data) {
@@ -55,16 +68,19 @@ const SingleReview: React.FC = () => {
       }
     };
 
-    const fetchSimilarReviews = async (categories: string[], reviewId: string) => {
+    const fetchSimilarReviews = async (
+      categories: string[],
+      reviewId: string
+    ) => {
       const { data, error } = await supabase
-        .from('reviews')
-        .select('*')
-        .contains('categories', categories)
-        .neq('id', reviewId)
+        .from("reviews")
+        .select("*")
+        .contains("categories", categories)
+        .neq("id", reviewId)
         .limit(4);
 
       if (error) {
-        console.error('Error fetching similar reviews:', error.message);
+        console.error("Error fetching similar reviews:", error.message);
       } else {
         setSimilarReviews(data || []);
       }
@@ -112,8 +128,7 @@ const SingleReview: React.FC = () => {
           </div>
           <div className="mt-4 flex space-x-4">
             <div className="flex items-center space-x-1">
-              <HeartIcon className="h-5 w-5 text-red-500" />
-              <span className="text-gray-300">{reviews.rating} Rating</span>
+              <RatingStars rating={reviews.rating} />
             </div>
           </div>
 
@@ -135,16 +150,17 @@ const SingleReview: React.FC = () => {
               <strong>OS Type:</strong> {reviews.os_type}
             </div>
             <div>
-              <strong>Based On:</strong> {reviews.based_on.join(', ')}
+              <strong>Based On:</strong> {reviews.based_on.join(", ")}
             </div>
             <div>
               <strong>Origin:</strong> {reviews.origin}
             </div>
             <div>
-              <strong>Architecture:</strong> {reviews.architecture.join(', ')}
+              <strong>Architecture:</strong> {reviews.architecture.join(", ")}
             </div>
             <div>
-              <strong>Desktop Environment:</strong> {reviews.desktop_environment.join(', ')}
+              <strong>Desktop Environment:</strong>{" "}
+              {reviews.desktop_environment.join(", ")}
             </div>
           </div>
 
@@ -167,16 +183,16 @@ const SingleReview: React.FC = () => {
                       {similarReview.title}
                     </h3>
                     <p className="text-sm text-gray-300 mb-2">
-                      Rating: {similarReview.rating}
+                      <RatingStars rating={similarReview.rating} />
                     </p>
                     <Link
-              to={`/review/${similarReview.slug}`}
-              className="inline-block text-cyan-400 hover:text-cyan-300 mt-4 transition duration-300"
-              onClick={handleScrollToTop}
-            >
-              Read more <ChevronRightIcon className="h-5 w-5 inline-block" />
-            </Link>
-                    
+                      to={`/review/${similarReview.slug}`}
+                      className="inline-block text-cyan-400 hover:text-cyan-300 mt-4 transition duration-300"
+                      onClick={handleScrollToTop}
+                    >
+                      Read more{" "}
+                      <ChevronRightIcon className="h-5 w-5 inline-block" />
+                    </Link>
                   </div>
                 ))}
               </div>
@@ -184,12 +200,12 @@ const SingleReview: React.FC = () => {
           )}
 
           {/* Back Button */}
-          <div className="mt-8 text-center">
+          <div className="mt-8 text-left">
             <button
               onClick={() => navigate(-1)}
-              className="bg-cyan-700 text-white text-xs font-bold px-6 py-2 rounded hover:bg-cyan-600 transition duration-300"
+              className="inline-block text-cyan-400 hover:text-cyan-300 mt-4 transition duration-300"
             >
-              Tillbaka
+              <ChevronLeftIcon className="h-5 w-5 inline-block" /> Back
             </button>
           </div>
         </div>
@@ -199,12 +215,3 @@ const SingleReview: React.FC = () => {
 };
 
 export default SingleReview;
-
-
-
-
-
-
-
-
-
