@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../../supabaseClient";
-import axios from "axios";
+
 import {
   CalendarIcon,
   ChevronRightIcon,
   ChatBubbleLeftIcon,
-  HeartIcon,
-  EyeIcon,
 } from "@heroicons/react/24/solid";
 import SearchBar from "../Search/SearchBar";
 import AdsSection from "../Ads/adsPage";
@@ -51,23 +49,13 @@ const PostList: React.FC = () => {
   const [posts, setPosts] = useState<PostList[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
   const [replies, setReplies] = useState<Reply[]>([]);
-  const [likes, setLikes] = useState<Like[]>([]);
+  const [, setLikes] = useState<Like[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [likedPostId, setLikedPostId] = useState<string | null>(null);
-  const [modalMessage, setModalMessage] = useState<string>("");
+
+  const [modalMessage] = useState<string>("");
   const [searchType, setSearchType] = useState("content");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filteredPosts, setFilteredPosts] = useState<PostList[]>(posts);
-
-  const getIpAddress = async () => {
-    try {
-      const response = await axios.get("https://api.ipify.org?format=json");
-      return response.data.ip;
-    } catch (error) {
-      console.error("Error fetching IP address:", error);
-      return "unknown";
-    }
-  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -160,43 +148,6 @@ const PostList: React.FC = () => {
       postComments.some((comment) => comment.id === reply.comment_id)
     );
     return postComments.length + postReplies.length;
-  };
-
-  const handleLike = async (postId: string) => {
-    const ipAddress = await getIpAddress();
-    const existingLike = likes.find(
-      (like) => like.post_id === postId && like.ip_address === ipAddress
-    );
-
-    if (existingLike) {
-      setLikedPostId(postId);
-      setModalMessage("You have already liked this post!");
-      setModalVisible(true);
-    } else {
-      const { data, error } = await supabase
-        .from("likes")
-        .insert([
-          {
-            post_id: postId,
-            ip_address: ipAddress,
-            created_at: new Date().toISOString(),
-          },
-        ])
-        .single();
-
-      if (error) {
-        console.error("Error inserting like:", error.message);
-      } else {
-        setLikes((prevLikes) => [...prevLikes, data]);
-        setLikedPostId(postId);
-        setModalMessage("Thanks for liking!");
-        setModalVisible(true);
-      }
-    }
-  };
-
-  const getLikeCount = (postId: string) => {
-    return likes.filter((like) => like?.post_id === postId).length;
   };
 
   const closeModal = () => {
