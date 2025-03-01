@@ -225,15 +225,15 @@ const ContactPage = () => {
               </li>
             </ul>
           </section>
-          <section className="text-center mt-8">
+          <section className="text-center mt-8 px-4">
             <h2 className="text-2xl sm:text-2xl font-semibold text-cyan-400 mb-4">
               Connect with me on GitHub
             </h2>
-            <p className="text-gray-300 leading-relaxed sm-2">
+            <p className="text-gray-300 leading-relaxed sm:mb-2">
               Feel free to check out my GitHub profile and explore my projects.
               You can also follow me to stay updated on my latest work.
             </p>
-            <div className="flex justify-center space-x-6">
+            <div className="flex flex-wrap justify-center gap-4 mt-4">
               {/* GitHub Followers Badge */}
               <a
                 href="https://github.com/codeforgedtech"
@@ -244,7 +244,7 @@ const ContactPage = () => {
                 <img
                   src="https://img.shields.io/github/followers/codeforgedtech?style=social"
                   alt="GitHub Followers"
-                  className="h-6" // Justering av storleken
+                  className="h-6"
                 />
               </a>
               {/* GitHub Stars Badge */}
@@ -257,7 +257,7 @@ const ContactPage = () => {
                 <img
                   src="https://img.shields.io/github/stars/codeforgedtech?style=social"
                   alt="GitHub Stars"
-                  className="h-6" // Justering av storleken
+                  className="h-6"
                 />
               </a>
               <img
@@ -268,8 +268,7 @@ const ContactPage = () => {
               <img
                 src="https://img.shields.io/github/forks/codeforgedtech/codecraftsman-blog?style=social"
                 alt="GitHub Forks"
-                className="h-6
-                "
+                className="h-6"
               />
               <img
                 src="https://img.shields.io/github/license/codeforgedtech/codecraftsman-blog?style=social"
