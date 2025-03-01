@@ -85,7 +85,7 @@ const GalleryPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-black min-h-screen text-white font-sans px-4 py-8 flex items-start justify-center">
+    <div className="bg-black min-h-screen text-white font-sans px-4 py-8 flex items-start justify-start w-screen">
       <div className="w-full max-w-6xl">
         <div className="p-2 rounded-lg shadow-lg mb-4">
           <AdsSection placement="in-content" />
