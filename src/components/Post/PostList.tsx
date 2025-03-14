@@ -6,6 +6,8 @@ import {
   CalendarIcon,
   ChevronRightIcon,
   ChatBubbleLeftIcon,
+  TagIcon,
+  FolderIcon,
 } from "@heroicons/react/24/solid";
 import SearchBar from "../Search/SearchBar";
 import AdsSection from "../Ads/adsPage";
@@ -238,7 +240,9 @@ const PostList: React.FC = () => {
                 </div>
               </div>
 
-              <div className="mt-4">
+              <div className="mt-4 flex items-center">
+                <FolderIcon className="w-4 h-4 text-cyan-700 mr-2" />{" "}
+                {/* Kategori-ikon */}
                 {post.categories.map((category, index) => (
                   <span
                     key={index}
@@ -249,6 +253,18 @@ const PostList: React.FC = () => {
                 ))}
               </div>
 
+              <div className="mt-4 flex items-center">
+                <TagIcon className="w-4 h-4 text-cyan-700 mr-2" />{" "}
+                {/* Tagg-ikon */}
+                {post.tags.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="bg-cyan-700 text-white text-xs font-bold mr-2 px-2.5 py-0.5 rounded"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
               <Link
                 to={`/post/${post.slug}`}
                 className="inline-block text-cyan-400 hover:text-cyan-300 mt-4 py-2 px-6 border-2 border-cyan-400 rounded-lg shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"

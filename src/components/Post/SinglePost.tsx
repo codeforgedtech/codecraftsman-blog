@@ -3,7 +3,12 @@ import { useParams, Link } from "react-router-dom";
 import { supabase } from "../../supabaseClient";
 import DOMPurify from "dompurify";
 import AdsSection from "../Ads/adsPage";
-import { CalendarIcon, UserIcon } from "@heroicons/react/20/solid";
+import {
+  CalendarIcon,
+  FolderIcon,
+  TagIcon,
+  UserIcon,
+} from "@heroicons/react/20/solid";
 
 // Post, Comment, and Reply interfaces
 interface Post {
@@ -434,6 +439,31 @@ const SinglePost: React.FC = () => {
             }}
           />
 
+          <div className="mt-4 flex items-center">
+            <FolderIcon className="w-4 h-4 text-cyan-700 mr-2" />{" "}
+            {/* Kategori-ikon */}
+            {post.categories.map((category, index) => (
+              <span
+                key={index}
+                className="bg-cyan-700 text-white text-xs font-bold mr-2 px-2.5 py-0.5 rounded"
+              >
+                {category}
+              </span>
+            ))}
+          </div>
+
+          <div className="mt-4 flex items-center">
+            <TagIcon className="w-4 h-4 text-cyan-700 mr-2" /> {/* Tagg-ikon */}
+            {post.tags.map((tag, index) => (
+              <span
+                key={index}
+                className="bg-cyan-700 text-white text-xs font-bold mr-2 px-2.5 py-0.5 rounded"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+
           {/* Datum och användarnamn placerat under texten */}
           <div className="flex justify-between text-xs sm:text-sm text-gray-400 mt-4">
             <div className="flex items-center">
@@ -547,28 +577,28 @@ const SinglePost: React.FC = () => {
         </div>
 
         {/* Related Posts Section */}
-        <div className="mt-12">
-          <h2 className="text-2xl text-cyan-500 font-semibold mb-4">
-            Related Posts
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {relatedPosts.map((relatedPost) => (
-              <div
-                key={relatedPost.id}
-                className="bg-gray-800 p-4 rounded-lg shadow-md"
+
+        <h2 className="text-2xl text-cyan-500 font-semibold mb-4">
+          Related Posts
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {relatedPosts.map((relatedPost) => (
+            <div
+              key={relatedPost.id}
+              className="bg-gray-800 p-4 rounded-lg shadow-md"
+            >
+              <img src={relatedPost.images[0]} alt={relatedPost.title} />
+              <Link
+                to={`/post/${relatedPost.slug}`}
+                className="text-xl font-semibold text-cyan-400"
               >
-                <Link
-                  to={`/posts/${relatedPost.slug}`}
-                  className="text-xl font-semibold text-cyan-400"
-                >
-                  {relatedPost.title}
-                </Link>
-                <p className="text-gray-300 mt-2">
-                  {new Date(relatedPost.created_at).toLocaleDateString()}
-                </p>
-              </div>
-            ))}
-          </div>
+                {relatedPost.title}
+              </Link>
+              <p className="text-gray-300 mt-2">
+                {new Date(relatedPost.created_at).toLocaleDateString()}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     </div>

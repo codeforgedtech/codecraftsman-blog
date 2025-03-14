@@ -5,6 +5,9 @@ import {
   ChevronRightIcon,
   ArrowRightIcon,
   ArrowLeftIcon,
+  TagIcon,
+  FolderIcon,
+  ComputerDesktopIcon,
 } from "@heroicons/react/24/solid";
 import { Link } from "react-router-dom";
 import AdsSection from "../Ads/adsPage";
@@ -229,6 +232,53 @@ const ArchivePage: React.FC = () => {
                   </span>
                 )}
               </div>
+
+              <div className="mt-4 flex items-center">
+                <FolderIcon className="w-4 h-4 text-cyan-700 mr-2" />{" "}
+                {/* Kategori-ikon */}
+                {item.categories.map((category, index) => (
+                  <span
+                    key={index}
+                    className="bg-cyan-700 text-white text-xs font-bold mr-2 px-2.5 py-0.5 rounded"
+                  >
+                    {category}
+                  </span>
+                ))}
+              </div>
+
+              <div className="mt-4 flex items-center">
+                {activeTab === "posts" && (
+                  <>
+                    <TagIcon className="w-4 h-4 text-cyan-700 mr-2" />{" "}
+                    {"tags" in item &&
+                      item.tags.map((tag: string, index: number) => (
+                        <span
+                          key={index}
+                          className="bg-cyan-700 text-white text-xs font-bold mr-2 px-2.5 py-0.5 rounded"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                  </>
+                )}
+              </div>
+
+              {/* Render desktop_environment for reviews */}
+              {"desktop_environment" in item && item.desktop_environment && (
+                <div className="mt-4 flex items-center">
+                  <span className="text-cyan-700 font-semibold mr-2">
+                    <ComputerDesktopIcon className="w-4 h-4 text-cyan-700 mr-2" />
+                  </span>
+                  {item.desktop_environment.map((de, index) => (
+                    <span
+                      key={index}
+                      className="bg-cyan-700 text-white text-xs font-bold mr-2 px-2.5 py-0.5 rounded"
+                    >
+                      {de}
+                    </span>
+                  ))}
+                </div>
+              )}
 
               <Link
                 to={`/${activeTab === "posts" ? "post" : "review"}/${
