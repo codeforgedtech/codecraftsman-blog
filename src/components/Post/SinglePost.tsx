@@ -428,7 +428,7 @@ const SinglePost: React.FC = () => {
             <img
               src={post.images[0]}
               alt={post.title}
-              className="w-full h-64 object-cover rounded-lg mb-4 border-4 border-cyan-500 shadow-xl"
+              className="w-full bg-white h-auto sm:h-[500px] object-contain rounded-xl transition-transform duration-500"
             />
           )}
 

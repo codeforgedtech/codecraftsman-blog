@@ -223,6 +223,17 @@ const ContactPage = () => {
                   codeforged_21518
                 </a>
               </li>
+              <li>
+                <span className="font-semibold text-cyan-300">Soundcloud:</span>{" "}
+                <a
+                  href="https://soundcloud.com/codecraftsman"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-cyan-500 hover:underline"
+                >
+                  codecraftsman
+                </a>
+              </li>
             </ul>
           </section>
           <section className="text-center mt-8 px-4">
