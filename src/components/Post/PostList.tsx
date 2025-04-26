@@ -206,18 +206,14 @@ const PostList: React.FC = () => {
               </div>
 
               {/* Visa bilder från inlägget */}
-              {post.images.length > 0 && (
-                <div className="flex space-x-4 mb-4">
-                  {post.images.map((image, index) => (
-                    <img
-                      key={index}
-                      src={image}
-                      alt={`Post image ${index + 1}`}
-                      className="w-full h-48 sm:h-64 object-cover rounded-lg mb-4 border-4 border-cyan-500 shadow-xl"
-                    />
-                  ))}
-                </div>
-              )}
+
+              <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-xl mb-8">
+                <img
+                  src={post.images[0]}
+                  alt={post.title}
+                  className="w-full h-auto sm:h-[500px] object-contain rounded-xl transition-transform duration-500 hover:scale-105"
+                />
+              </div>
 
               <p
                 className="text-sm sm:text-lg text-gray-300 mb-4"
