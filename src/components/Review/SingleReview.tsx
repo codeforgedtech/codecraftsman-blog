@@ -104,20 +104,20 @@ const SingleReview: React.FC = () => {
           <AdsSection placement="post-top" />
         </div>
 
-        <div className="p-4 sm:p-6 bg-gradient-to-r from-gray-800 via-gray-900 to-black rounded-xl shadow-lg">
+        <div className="p-6 sm:p-10 bg-white rounded-2xl shadow-2xl">
           <img
             src={reviews.imageUrl}
             alt={reviews.title}
-            className="w-full h-64 object-cover rounded-lg mb-4 border-4 border-cyan-500 shadow-xl"
+            className="w-full h-72 object-cover rounded-xl shadow-md mb-6 transition-transform duration-500 hover:scale-105"
           />
 
           <div className="flex items-center space-x-2">
-            <h1 className="text-xl sm:text-2xl font-semibold text-cyan-400 mb-4 hover:text-cyan-300 transition duration-300">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 hover:text-cyan-600 transition">
               {reviews.title}
             </h1>
           </div>
           <div
-            className="text-sm sm:text-lg text-gray-300 mb-4"
+            className="text-gray-700 mb-6 text-base leading-relaxed"
             dangerouslySetInnerHTML={{
               __html: DOMPurify.sanitize(reviews.content),
             }}
@@ -136,7 +136,7 @@ const SingleReview: React.FC = () => {
             {reviews.categories.map((category, index) => (
               <span
                 key={index}
-                className="bg-cyan-700 text-white text-xs font-bold mr-2 px-2.5 py-0.5 rounded"
+                className="bg-cyan-500 text-white text-xs font-semibold mr-2 mb-2 px-3 py-1 rounded-full inline-block"
               >
                 {category}
               </span>
@@ -172,14 +172,14 @@ const SingleReview: React.FC = () => {
                 {similarReviews.map((similarReview) => (
                   <div
                     key={similarReview.id}
-                    className="p-4 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow"
+                    className="p-4 bg-white rounded-xl shadow-lg hover:shadow-2xl transition-shadow border border-gray-100"
                   >
                     <img
                       src={similarReview.imageUrl}
                       alt={similarReview.title}
                       className="w-full h-40 object-cover rounded-lg mb-4"
                     />
-                    <h3 className="text-lg font-semibold text-cyan-400 mb-2">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2 hover:text-cyan-600 transition">
                       {similarReview.title}
                     </h3>
                     <p className="text-sm text-gray-300 mb-2">
@@ -203,9 +203,10 @@ const SingleReview: React.FC = () => {
           <div className="mt-8 text-left">
             <button
               onClick={() => navigate(-1)}
-              className="inline-block text-cyan-400 hover:text-cyan-300 mt-4 transition duration-300"
+              className="inline-flex items-center gap-2 px-5 py-2.5 mt-6 text-sm font-medium text-cyan-600 bg-white border border-cyan-600 rounded-lg shadow hover:bg-cyan-600 hover:text-white transition-all duration-300"
             >
-              <ChevronLeftIcon className="h-5 w-5 inline-block" /> Back
+              <ChevronLeftIcon className="h-5 w-5" />
+              Back
             </button>
           </div>
         </div>

@@ -192,6 +192,7 @@ const SinglePost: React.FC = () => {
       if (error) {
         console.error("Error fetching related posts:", error.message);
       } else {
+        console.log("Related posts:", data); // Logga de relaterade inläggen
         setRelatedPosts(data || []);
       }
     } catch (err) {
@@ -423,7 +424,7 @@ const SinglePost: React.FC = () => {
         <h1 className="text-3xl sm:text-4xl font-bold text-left text-cyan-500 mb-8">
           {post.title}
         </h1>
-        <div className="p-4 sm:p-6 bg-gradient-to-r from-gray-800 via-gray-900 to-black rounded-xl shadow-lg">
+        <div className="p-4 sm:p-6 bg-white rounded-xl shadow-lg">
           {post.images[0] && (
             <img
               src={post.images[0]}
@@ -433,7 +434,7 @@ const SinglePost: React.FC = () => {
           )}
 
           <div
-            className="text-sm sm:text-lg text-gray-300 mb-4 whitespace-pre-wrap break-words overflow-auto"
+            className="text-gray-700 mb-4 whitespace-pre-wrap break-words overflow-auto"
             dangerouslySetInnerHTML={{
               __html: DOMPurify.sanitize(post.content),
             }}
@@ -530,38 +531,38 @@ const SinglePost: React.FC = () => {
           </h2>
           <form
             onSubmit={handleCommentSubmit}
-            className="bg-gray-800 p-6 rounded-lg shadow-md"
+            className="bg-white p-6 rounded-lg shadow-md"
           >
             {errorMessage && (
               <div className="text-red-500 text-sm mb-4">{errorMessage}</div>
             )}
             <textarea
-              className="w-full p-2 mt-2 bg-gray-700 text-white rounded-md"
+              className="w-full p-2 mt-2 bg-black text-white rounded-md"
               placeholder="Write your comment here"
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
             />
             <input
               type="text"
-              className="w-full p-2 mt-2 bg-gray-700 text-white rounded-md"
+              className="w-full p-2 mt-2 bg-black text-white rounded-md"
               placeholder="Your name"
               value={commentName}
               onChange={(e) => setCommentName(e.target.value)}
             />
             <input
               type="email"
-              className="w-full p-2 mt-2 bg-gray-700 text-white rounded-md"
+              className="w-full p-2 mt-2 bg-black text-white rounded-md"
               placeholder="Your email"
               value={commentEmail}
               onChange={(e) => setCommentEmail(e.target.value)}
             />
             <div className="mt-4">
-              <label className="text-gray-300">
+              <label className="text-black">
                 What is {num1} + {num2}?
               </label>
               <input
                 type="number"
-                className="w-full p-2 mt-2 bg-gray-700 text-white rounded-md"
+                className="w-full p-2 mt-2 bg-black text-black rounded-md"
                 placeholder="Enter the sum"
                 value={captchaAnswer}
                 onChange={(e) => setCaptchaAnswer(e.target.value)}
@@ -569,7 +570,7 @@ const SinglePost: React.FC = () => {
             </div>
             <button
               type="submit"
-              className="mt-4 bg-cyan-500 text-white p-2 rounded-lg"
+              className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-cyan-600 bg-white border border-cyan-600 rounded-lg shadow hover:bg-cyan-600 hover:text-white transition-all duration-300 mt-4"
             >
               Submit Comment
             </button>
@@ -577,29 +578,34 @@ const SinglePost: React.FC = () => {
         </div>
 
         {/* Related Posts Section */}
-
-        <h2 className="text-2xl text-cyan-500 font-semibold mb-4">
-          Related Posts
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {relatedPosts.map((relatedPost) => (
-            <div
-              key={relatedPost.id}
-              className="bg-gray-800 p-4 rounded-lg shadow-md"
-            >
-              <img src={relatedPost.images[0]} alt={relatedPost.title} />
-              <Link
-                to={`/post/${relatedPost.slug}`}
-                className="text-xl font-semibold text-cyan-400"
-              >
-                {relatedPost.title}
-              </Link>
-              <p className="text-gray-300 mt-2">
-                {new Date(relatedPost.created_at).toLocaleDateString()}
-              </p>
+        {relatedPosts.length > 0 ? (
+          <div>
+            <h2 className="text-2xl text-cyan-500 font-semibold mb-4">
+              Related Posts
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {relatedPosts.map((relatedPost) => (
+                <div
+                  key={relatedPost.id}
+                  className="bg-white p-4 rounded-lg shadow-md"
+                >
+                  <img src={relatedPost.images[0]} alt={relatedPost.title} />
+                  <Link
+                    to={`/post/${relatedPost.slug}`}
+                    className="text-l font-semibold text-black"
+                  >
+                    {relatedPost.title}
+                  </Link>
+                  <p className="text-black mt-2">
+                    {new Date(relatedPost.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        ) : (
+          <p className="text-gray-300">No related posts found.</p>
+        )}
       </div>
     </div>
   );
