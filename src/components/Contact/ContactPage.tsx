@@ -3,7 +3,14 @@ import emailjs from "emailjs-com";
 import AdsSection from "../Ads/adsPage";
 
 // Modal component
-const Modal = ({ isOpen, message, onClose, isSuccess }: any) => {
+interface ModalProps {
+  isOpen: boolean;
+  message: string;
+  onClose: () => void;
+  isSuccess: boolean;
+}
+
+const Modal = ({ isOpen, message, onClose, isSuccess }: ModalProps) => {
   if (!isOpen) return null;
 
   return (
@@ -192,49 +199,104 @@ const ContactPage = () => {
               media:
             </p>
             <ul className="space-y-4 mt-4">
-              <li>
-                <span className="font-semibold text-cyan-300">Email:</span>{" "}
-                <a
-                  href="mailto:info@codeforged.se"
-                  className="text-cyan-500 hover:underline"
-                >
-                  info@codeforged.se
-                </a>
-              </li>
-              <li>
-                <span className="font-semibold text-cyan-300">LinkedIn:</span>{" "}
-                <a
-                  href="https://www.linkedin.com/in/christer-holm-6b945925/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-cyan-500 hover:underline"
-                >
-                  linkedin.com/in/christer-holm-6b945925/
-                </a>
-              </li>
-              <li>
-                <span className="font-semibold text-cyan-300">Discord:</span>{" "}
-                <a
-                  href="https://discord.com/users/codeforged_21518"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-cyan-500 hover:underline"
-                >
-                  codeforged_21518
-                </a>
-              </li>
-              <li>
-                <span className="font-semibold text-cyan-300">Soundcloud:</span>{" "}
-                <a
-                  href="https://soundcloud.com/codecraftsman"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-cyan-500 hover:underline"
-                >
-                  codecraftsman
-                </a>
-              </li>
-            </ul>
+  {/* Email */}
+  <li className="flex items-center gap-2">
+    <span className="text-cyan-300 font-semibold flex items-center gap-1">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-5 h-5 text-cyan-400"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={2}
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+        />
+      </svg>
+      Email:
+    </span>
+    <a
+      href="mailto:master@codecraftsman.se"
+      className="text-cyan-500 hover:underline"
+    >
+      master@codecraftsman.se
+    </a>
+  </li>
+
+  {/* LinkedIn (no change) */}
+
+  {/* Discord */}
+  <li className="flex items-center gap-2">
+    <span className="text-cyan-300 font-semibold flex items-center gap-1">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-5 h-5 text-indigo-400"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+      >
+        <path d="M20.317 4.369A19.791 19.791 0 0015.946 3c-.179.312-.388.73-.531 1.056a18.151 18.151 0 00-6.83 0c-.143-.326-.35-.744-.531-1.056A19.77 19.77 0 003.683 4.369a20.021 20.021 0 00-1.714 12.85 19.9 19.9 0 005.993 2.908c.49-.672.925-1.385 1.298-2.132a12.683 12.683 0 01-1.986-.961c.167-.127.33-.26.488-.397a14.64 14.64 0 0011.418 0c.158.137.321.27.488.397a12.683 12.683 0 01-1.986.961c.373.747.808 1.46 1.298 2.132a19.89 19.89 0 005.993-2.908 20.03 20.03 0 00-1.714-12.85zM9.113 13.883c-1.057 0-1.921-.951-1.921-2.122 0-1.17.85-2.121 1.921-2.121 1.07 0 1.935.951 1.921 2.121 0 1.17-.85 2.122-1.921 2.122zm5.774 0c-1.057 0-1.921-.951-1.921-2.122 0-1.17.85-2.121 1.921-2.121 1.07 0 1.935.951 1.921 2.121 0 1.17-.851 2.122-1.921 2.122z" />
+      </svg>
+      Discord:
+    </span>
+    <a
+      href="https://discord.com/users/codeforged_21518"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-cyan-500 hover:underline"
+    >
+      codeforged_21518
+    </a>
+  </li>
+
+  {/* SoundCloud */}
+  <li className="flex items-center gap-2">
+    <span className="text-orange-400 font-semibold flex items-center gap-1">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-5 h-5"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+      >
+        <path d="M17.6 10.5c-.3 0-.5 0-.8.1-.4-2.5-2.4-4.4-4.9-4.4-1.2 0-2.2.4-3.1 1-.2.1-.3.3-.3.5v7.1c0 .3.2.5.5.5h8.6c1.7 0 3.1-1.4 3.1-3.1s-1.4-3.2-3.1-3.2zM1.9 10.7c-.3 0-.6.3-.6.6v3.4c0 .3.3.6.6.6s.6-.3.6-.6v-3.4c0-.3-.3-.6-.6-.6zm2.1-1.1c-.3 0-.6.3-.6.6v5.6c0 .3.3.6.6.6s.6-.3.6-.6v-5.6c0-.3-.3-.6-.6-.6zm2.1-.9c-.3 0-.6.3-.6.6v7.4c0 .3.3.6.6.6s.6-.3.6-.6V9.3c0-.3-.2-.6-.6-.6zm2.1-.6c-.3 0-.6.3-.6.6v8.6c0 .3.3.6.6.6s.6-.3.6-.6V9.3c0-.4-.2-.6-.6-.6z" />
+      </svg>
+      SoundCloud:
+    </span>
+    <a
+      href="https://soundcloud.com/codecraftsman"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-orange-300 hover:underline"
+    >
+      codecraftsman
+    </a>
+  </li>
+
+  {/* Spotify */}
+  <li className="flex items-center gap-2">
+    <span className="font-semibold text-green-300 flex items-center gap-1">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-5 h-5"
+        fill="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path d="M12 0C5.371 0 0 5.373 0 12c0 6.627 5.371 12 12 12s12-5.373 12-12c0-6.627-5.371-12-12-12zm5.356 17.273c-.229.373-.709.49-1.084.264-2.971-1.82-6.717-2.232-11.106-1.225-.435.1-.883-.176-.984-.611-.1-.435.176-.883.611-.984 4.865-1.103 9.067-.631 12.427 1.43.375.229.493.709.264 1.126zm1.541-2.732c-.295.478-.922.631-1.4.336-3.404-2.1-8.591-2.709-12.616-1.487-.547.166-1.135-.137-1.299-.684-.166-.547.137-1.135.684-1.299 4.547-1.406 10.271-.732 14.166 1.709.478.295.631.922.336 1.425zm.162-2.82c-4.049-2.45-10.729-2.676-14.584-1.479-.664.195-1.365-.166-1.56-.83-.195-.664.166-1.365.83-1.56 4.484-1.336 11.902-1.078 16.533 1.709.59.354.779 1.125.424 1.715-.355.59-1.125.779-1.643.445z" />
+      </svg>
+      Spotify:
+    </span>
+    <a
+      href="https://open.spotify.com/artist/0voqr9KSdMAufUnbljpbuH"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-green-400 hover:underline"
+    >
+      codecraftsman
+    </a>
+  </li>
+</ul>
           </section>
           <section className="text-center mt-8 px-4">
             <h2 className="text-2xl sm:text-2xl font-semibold text-cyan-400 mb-4">

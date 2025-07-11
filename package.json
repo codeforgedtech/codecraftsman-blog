@@ -16,9 +16,11 @@
     "dompurify": "^3.2.2",
     "emailjs-com": "^3.2.0",
     "heroicons": "^2.2.0",
+    "lucide-react": "^0.525.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-google-recaptcha": "^3.1.0",
+    "react-icons": "^5.5.0",
     "react-router-dom": "^7.0.1"
   },
   "devDependencies": {

@@ -10,6 +10,7 @@ import {
   XMarkIcon,
   PhotoIcon,
   ShoppingBagIcon,
+  MusicalNoteIcon,
 } from "@heroicons/react/24/solid";
 import logo from "../../assets/codelogo.svg";
 
@@ -85,6 +86,18 @@ const Sidebar: React.FC = () => {
               <span className="inline">Archive</span>
             </Link>
           </li>
+          <li>
+  <Link
+    to="/music"
+    onClick={() => handleLinkClick("music")}
+    className={`flex items-center space-x-3 text-cyan-500 
+      ${activeLink === "music" ? "bg-cyan-500 text-white" : ""} 
+      rounded-full py-1 px-4 hover:bg-cyan-500 hover:text-white`}
+  >
+    <MusicalNoteIcon className="h-8 w-8" />
+    <span className="inline">Music</span>
+  </Link>
+</li>
           <li>
             <Link
               to="/store"
