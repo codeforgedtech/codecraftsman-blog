@@ -19,7 +19,7 @@ const CheckoutPage: React.FC = () => {
 
   const [shipping, setShipping] = useState<"standard" | "express">("standard");
 
-  const shippingCost = shipping === "express" ? 9.99 : 4.99;
+  const shippingCost = shipping === "express" ? 5.99 : 4.00;
 
   const totalPrice = cartItems.reduce((total, item) => {
     const priceNum = parseFloat(item.price.replace(",", ".").replace("€", ""));
@@ -76,8 +76,8 @@ const CheckoutPage: React.FC = () => {
                 onChange={(e) => setShipping(e.target.value as "standard" | "express")}
                 className="w-full p-3 rounded bg-gray-800 border border-gray-600 text-white"
               >
-                <option value="standard">Standard (4.99 €)</option>
-                <option value="express">Express (9.99 €)</option>
+                <option value="standard">Standard (4.00 €)</option>
+                <option value="express">Express (5.99 €)</option>
               </select>
             </div>
 
@@ -113,6 +113,7 @@ const CheckoutPage: React.FC = () => {
               description: "Order from CodeCraftsMan Store",
             },
           ],
+          intent: "CAPTURE"
         });
       }}
       onApprove={(data, actions) => {

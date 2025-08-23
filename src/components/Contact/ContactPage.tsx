@@ -242,12 +242,12 @@ const ContactPage = () => {
       Discord:
     </span>
     <a
-      href="https://discord.com/users/codeforged_21518"
+      href="https://discord.gg/GUDy5sxB"
       target="_blank"
       rel="noopener noreferrer"
       className="text-cyan-500 hover:underline"
     >
-      codeforged_21518
+      CodeCraftsMan Server
     </a>
   </li>
 

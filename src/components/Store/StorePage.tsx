@@ -3,7 +3,6 @@ import AdsSection from "../Ads/adsPage";
 import { useNavigate } from "react-router-dom";
 import { FaOpencart, FaTrash } from "react-icons/fa6";
 
-
 interface Product {
   id: number;
   name: string;
@@ -14,9 +13,9 @@ interface Product {
   sizes?: string[];
   color?: string[];
   colorImages?: { [key: string]: string };
-  stock?: number;           // 👈 max available (sets or pieces)
-  unitLabel?: string;       // 👈 label for quantity unit, e.g. "set (4 coasters)" or "pcs"
-  unitMultiplier?: number;  // 👈 how many items per unit (for display)
+  stock?: number;           // max available (sets or pieces)
+  unitLabel?: string;       // label for quantity unit, e.g. "set (4 coasters)" or "pcs"
+  unitMultiplier?: number;  // how many items per unit (for display)
 }
 
 interface CartItem extends Product {
@@ -26,6 +25,9 @@ interface CartItem extends Product {
 }
 
 const StorePage: React.FC = () => {
+  // 🔒 Toggle this to enable/disable purchasing site-wide
+  const COMING_SOON = true;
+
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
@@ -37,11 +39,11 @@ const StorePage: React.FC = () => {
   const navigate = useNavigate();
 
   const addToCart = () => {
+    if (COMING_SOON) return; // hard block
     if (!selectedProduct) return;
 
     const stockLimit = selectedProduct.stock ?? Infinity;
 
-    // Sum already in cart for this product
     const totalInCartForThisProduct = cartItems
       .filter((item) => item.id === selectedProduct.id)
       .reduce((sum, item) => sum + item.quantity, 0);
@@ -70,15 +72,14 @@ const StorePage: React.FC = () => {
 
       if (existingIndex !== -1) {
         const updated = [...prev];
-
         const nextQty = updated[existingIndex].quantity + quantity;
+        const stockLimit = selectedProduct.stock ?? Infinity;
         if (nextQty > stockLimit) {
           alert(
             `Only ${stockLimit} ${selectedProduct.unitLabel ?? "pcs"} in stock for ${selectedProduct.name}.`
           );
           return prev;
         }
-
         updated[existingIndex].quantity = nextQty;
         return updated;
       }
@@ -98,7 +99,7 @@ const StorePage: React.FC = () => {
     return total + priceNum * item.quantity;
   }, 0);
 
-  // 👇 Products with stock & unit info
+  // Products with stock & unit info
   const products: Product[] = [
     {
       id: 1,
@@ -108,9 +109,9 @@ const StorePage: React.FC = () => {
       description:
         "High-quality CodeCraftsMan drink coasters – 1 set contains 4 coasters. Only 2 sets available in stock.",
       category: "Accessories",
-      stock: 2,                    // max 2 sets
+      stock: 2,
       unitLabel: "set (4 coasters)",
-      unitMultiplier: 4,           // for display in cart
+      unitMultiplier: 4,
     },
     {
       id: 2,
@@ -120,7 +121,7 @@ const StorePage: React.FC = () => {
       description:
         "High-quality CodeCraftsMan Cap opener. Only 3 items available in stock.",
       category: "Accessories",
-      stock: 3,                    // max 3 pcs
+      stock: 3,
       unitLabel: "pcs",
       unitMultiplier: 1,
     },
@@ -161,10 +162,22 @@ const StorePage: React.FC = () => {
           <AdsSection placement="in-content" />
         </div>
 
+        {/* Coming soon banner */}
+        {COMING_SOON && (
+          <div className="mb-4 rounded-lg border border-yellow-400/30 bg-yellow-500/10 text-yellow-200 px-4 py-3">
+            <p className="font-semibold">Store is coming soon</p>
+            <p className="text-sm text-yellow-200/90">
+              This page is a preview. Purchasing is temporarily disabled while we finish setup.
+            </p>
+          </div>
+        )}
+
         <div className="flex justify-end mb-4">
           <button
             onClick={() => setIsCartOpen(true)}
-            className="relative bg-cyan-500 text-black px-4 py-2 rounded-lg font-bold hover:bg-cyan-400"
+            className="relative bg-cyan-500 text-black px-4 py-2 rounded-lg font-bold hover:bg-cyan-400 disabled:opacity-60 disabled:cursor-not-allowed"
+            disabled={COMING_SOON}
+            title={COMING_SOON ? "Cart preview only (coming soon)" : "Open cart"}
           >
             <FaOpencart size={20} />
             {cartItems.length > 0 && (
@@ -199,21 +212,47 @@ const StorePage: React.FC = () => {
           {filteredProducts.map((product) => (
             <div
               key={product.id}
-              className="relative group cursor-pointer bg-gray-800 rounded-lg p-4 shadow-md hover:shadow-xl transition"
-              onClick={() => openModal(product)}
+              className="relative bg-gray-800 rounded-lg p-4 shadow-md transition"
             >
-              <img
-                src={product.image}
-                alt={product.name}
-                className="w-full aspect-square object-cover rounded-lg"
-              />
-              <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-lg font-bold">
-                View Details
+              {/* Image */}
+              <div className="relative">
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className={`w-full aspect-square object-cover rounded-lg ${COMING_SOON ? "opacity-60" : ""}`}
+                />
+                {COMING_SOON && (
+                  <div className="absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center">
+                    <span className="text-xs font-semibold px-2 py-1 rounded bg-yellow-500/20 border border-yellow-400/30 text-yellow-200">
+                      Coming soon
+                    </span>
+                  </div>
+                )}
               </div>
+
+              {/* Text */}
               <div className="mt-2 text-center">
                 <h2 className="text-lg font-semibold text-gray-300">{product.name}</h2>
                 <p className="text-cyan-500 font-bold">{product.price}</p>
               </div>
+
+              {/* Click catcher for modal (disabled when coming soon) */}
+              {!COMING_SOON ? (
+                <button
+                  onClick={() => openModal(product)}
+                  className="mt-3 w-full bg-cyan-600 hover:bg-cyan-500 text-black font-semibold py-2 rounded-lg"
+                >
+                  View Details
+                </button>
+              ) : (
+                <button
+                  disabled
+                  className="mt-3 w-full bg-gray-700 text-gray-300 font-semibold py-2 rounded-lg cursor-not-allowed"
+                  title="Purchasing disabled (coming soon)"
+                >
+                  View Details
+                </button>
+              )}
             </div>
           ))}
         </div>
@@ -233,7 +272,7 @@ const StorePage: React.FC = () => {
                   <img
                     src={selectedProduct.image}
                     alt={selectedProduct.name}
-                    className="max-h-96 w-full object-contain"
+                    className="max-h-96 w-full object-contain opacity-90"
                   />
                 </div>
                 <div className="flex flex-col justify-between">
@@ -248,6 +287,11 @@ const StorePage: React.FC = () => {
                     <p className="text-2xl font-semibold text-cyan-500 mb-6">
                       {selectedProduct.price}
                     </p>
+                    {COMING_SOON && (
+                      <div className="mb-4 rounded-md border border-yellow-400/30 bg-yellow-500/10 text-yellow-200 px-3 py-2 text-sm">
+                        Purchasing will be enabled when the store launches.
+                      </div>
+                    )}
                   </div>
 
                   {/* Quantity selector – dynamic per product */}
@@ -258,9 +302,10 @@ const StorePage: React.FC = () => {
                         : "Select quantity"}
                     </label>
                     <select
-                      className="w-full bg-gray-800 text-gray-300 px-4 py-2 rounded-lg"
+                      className="w-full bg-gray-800 text-gray-300 px-4 py-2 rounded-lg disabled:opacity-60"
                       value={quantity}
                       onChange={(e) => setQuantity(Number(e.target.value))}
+                      disabled={COMING_SOON}
                     >
                       {quantityOptions(selectedProduct).map((n) => (
                         <option key={n} value={n}>
@@ -279,7 +324,9 @@ const StorePage: React.FC = () => {
                     </button>
                     <button
                       onClick={addToCart}
-                      className="flex-grow bg-green-500 hover:bg-green-400 text-white px-4 py-2 rounded-lg"
+                      disabled={COMING_SOON}
+                      className="flex-grow bg-green-500 text-white px-4 py-2 rounded-lg disabled:opacity-60 disabled:cursor-not-allowed"
+                      title={COMING_SOON ? "Purchasing disabled (coming soon)" : "Add to Cart"}
                     >
                       Add to Cart
                     </button>
@@ -348,14 +395,19 @@ const StorePage: React.FC = () => {
                     </p>
                     <button
                       onClick={() =>
-                        navigate("/checkout", {
-                          state: { cart: cartItems },
-                        })
+                        navigate("/checkout", { state: { cart: cartItems } })
                       }
-                      className="mt-4 bg-green-500 hover:bg-green-400 text-black font-semibold px-4 py-2 rounded-lg"
+                      disabled={COMING_SOON}
+                      className="mt-4 bg-green-500 text-black font-semibold px-4 py-2 rounded-lg disabled:opacity-60 disabled:cursor-not-allowed"
+                      title={COMING_SOON ? "Checkout disabled (coming soon)" : "Proceed to checkout"}
                     >
                       Go to Checkout
                     </button>
+                    {COMING_SOON && (
+                      <p className="mt-2 text-xs text-gray-400">
+                        Checkout will be available when the store launches.
+                      </p>
+                    )}
                   </div>
                 </div>
               )}
@@ -368,6 +420,7 @@ const StorePage: React.FC = () => {
 };
 
 export default StorePage;
+
 
 
 

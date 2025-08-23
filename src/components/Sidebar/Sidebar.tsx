@@ -8,12 +8,11 @@ import {
   StarIcon,
   Bars3Icon,
   XMarkIcon,
-  PhotoIcon,
   ShoppingBagIcon,
   MusicalNoteIcon,
   Squares2X2Icon,
 } from "@heroicons/react/24/solid";
-import logo from "../../assets/codelogo.svg";
+import logo from "../../assets/logo.svg";
 
 const Sidebar: React.FC = () => {
   const [activeLink, setActiveLink] = useState<string | null>(null);
@@ -54,12 +53,15 @@ const Sidebar: React.FC = () => {
   } md:translate-x-0 md:relative md:w-48 md:h-full z-50`} // ändrat från w-64 till w-48
       >
         <div className="flex justify-center items-center mb-4">
-          <img
-            src={logo}
-            alt="Logo"
-            className="h-32 md:h-64" // Justera storleken: mindre på mobil, större på desktop
-          />
-        </div>
+<div className="flex justify-center items-center mb-4">
+  <img
+    src={logo}
+    alt="Logo"
+    className="h-16 sm:h-20 md:h-28 lg:h-32 w-auto object-contain
+               drop-shadow-[0_0_10px_#22d3ee] md:drop-shadow-[0_0_20px_#22d3ee] animate-pulse"
+  />
+</div>
+</div>
 
         <ul className="space-y-2">
           <li>
@@ -135,18 +137,7 @@ const Sidebar: React.FC = () => {
               <span className="inline">About</span>
             </Link>
           </li>
-          <li>
-            <Link
-              to="/wallpaper"
-              onClick={() => handleLinkClick("wallpaper")}
-              className={`flex items-center space-x-3 text-cyan-500 
-              ${activeLink === "wallpaper" ? "bg-cyan-500 text-white" : ""} 
-              rounded-full py-1 px-4 hover:bg-cyan-500 hover:text-white`}
-            >
-              <PhotoIcon className="h-8 w-8" />
-              <span className="inline">Wallpaper</span>
-            </Link>
-          </li>
+          
           <li>
             <Link
               to="/contact"

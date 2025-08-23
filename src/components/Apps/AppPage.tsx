@@ -1,7 +1,88 @@
 import AdsSection from "../Ads/adsPage";
 import { FaGooglePlay, FaGithub, FaAndroid, FaDownload } from "react-icons/fa";
 
+type Platform = {
+  name: string;
+  href?: string;
+  icon: JSX.Element;
+  classes: string;      // bg color classes
+  available: boolean;   // toggle this to true when live
+};
+
 const AppPage = () => {
+  const platforms: Platform[] = [
+    {
+      name: "Google Play",
+      href: "https://play.google.com/store/apps/developer?id=YourDeveloperName",
+      icon: <FaGooglePlay className="text-white w-6 h-6" />,
+      classes: "bg-green-600",
+      available: false, // set to true when published
+    },
+    {
+      name: "F-Droid",
+      href: "https://f-droid.org/en/packages/your.package.name/",
+      icon: <FaAndroid className="text-white w-6 h-6" />,
+      classes: "bg-blue-700",
+      available: false,
+    },
+    {
+      name: "GitHub",
+      href: "https://github.com/yourusername/yourapp/releases",
+      icon: <FaGithub className="text-white w-6 h-6" />,
+      classes: "bg-gray-800",
+      available: false,
+    },
+    {
+      name: "APKMirror",
+      href: "https://www.apkmirror.com/uploads/?q=yourapp",
+      icon: <FaDownload className="text-white w-6 h-6" />,
+      classes: "bg-purple-700",
+      available: false,
+    },
+  ];
+
+  // Reusable button that handles available/coming-soon states
+  const PlatformButton = ({ p }: { p: Platform }) => {
+    const base =
+      "flex items-center justify-center p-3 rounded-lg shadow transition-transform";
+    const enabled =
+      `${p.classes} hover:scale-105`;
+    const disabled =
+      "bg-gray-700/60 cursor-not-allowed ring-1 ring-gray-600/40";
+
+    const content = (
+      <>
+        {p.icon}
+        <span className="font-semibold text-white ml-2">{p.name}</span>
+        {!p.available && (
+          <span className="ml-3 text-[11px] px-2 py-0.5 rounded-full bg-black/40 text-gray-200 border border-white/10">
+            Coming soon
+          </span>
+        )}
+      </>
+    );
+
+    return p.available && p.href ? (
+      <a
+        href={p.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={`${base} ${enabled}`}
+      >
+        {content}
+      </a>
+    ) : (
+      <div
+        role="button"
+        aria-disabled="true"
+        className={`${base} ${disabled}`}
+        title="Not available yet"
+      >
+        {content}
+      </div>
+    );
+  };
+
   return (
     <div className="bg-black min-h-screen text-white font-sans px-4 py-8 flex items-start justify-start w-screen">
       <div className="w-full max-w-6xl">
@@ -29,57 +110,25 @@ const AppPage = () => {
 
             {/* Where to Download */}
             <section>
-              <h2 className="text-2xl sm:text-3xl font-semibold text-cyan-400 mb-4">
-                Where to download my apps!
+              <h2 className="text-2xl sm:text-3xl font-semibold text-cyan-400 mb-2">
+                Where to download my apps
               </h2>
               <p className="text-gray-300 leading-relaxed mb-4">
-                All apps are available <span className="text-cyan-300 font-semibold">here</span>. Some of my apps are also available on alternative platforms.
+                My apps are being published gradually. They’re not available on these platforms <span className="italic">yet</span>, but they’re on the way. Check back soon! 👇
               </p>
 
               <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
-                {/* Google Play */}
-                <a
-                  href="https://play.google.com/store/apps/developer?id=YourDeveloperName"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center p-3 bg-green-600 rounded-lg shadow hover:scale-105 transition-transform"
-                >
-                  <FaGooglePlay className="text-white w-6 h-6" />
-                  <span className="font-semibold text-white ml-2">Google Play</span>
-                </a>
+                {platforms.map((p) => (
+                  <PlatformButton key={p.name} p={p} />
+                ))}
+              </div>
 
-                {/* F-Droid */}
-                <a
-                  href="https://f-droid.org/en/packages/your.package.name/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center p-3 bg-blue-700 rounded-lg shadow hover:scale-105 transition-transform"
-                >
-                  <FaAndroid className="text-white w-6 h-6" />
-                  <span className="font-semibold text-white ml-2">F-Droid</span>
-                </a>
-
-                {/* GitHub Releases */}
-                <a
-                  href="https://github.com/yourusername/yourapp/releases"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center p-3 bg-gray-800 rounded-lg shadow hover:scale-105 transition-transform"
-                >
-                  <FaGithub className="text-white w-6 h-6" />
-                  <span className="font-semibold text-white ml-2">GitHub</span>
-                </a>
-
-                {/* APKMirror */}
-                <a
-                  href="https://www.apkmirror.com/uploads/?q=yourapp"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center p-3 bg-purple-700 rounded-lg shadow hover:scale-105 transition-transform"
-                >
-                  <FaDownload className="text-white w-6 h-6" />
-                  <span className="font-semibold text-white ml-2">APKMirror</span>
-                </a>
+              {/* Optional legend */}
+              <div className="mt-3 text-xs text-gray-400">
+                <span className="inline-flex items-center">
+                  <span className="w-3 h-3 rounded-sm bg-gray-700/60 mr-2 border border-white/10"></span>
+                  Coming soon (not live yet)
+                </span>
               </div>
             </section>
 
@@ -103,3 +152,4 @@ const AppPage = () => {
 };
 
 export default AppPage;
+
