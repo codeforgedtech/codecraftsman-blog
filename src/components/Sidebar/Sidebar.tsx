@@ -11,6 +11,7 @@ import {
   PhotoIcon,
   ShoppingBagIcon,
   MusicalNoteIcon,
+  Squares2X2Icon,
 } from "@heroicons/react/24/solid";
 import logo from "../../assets/codelogo.svg";
 
@@ -60,7 +61,7 @@ const Sidebar: React.FC = () => {
           />
         </div>
 
-        <ul className="space-y-6">
+        <ul className="space-y-2">
           <li>
             <Link
               to="/"
@@ -96,6 +97,18 @@ const Sidebar: React.FC = () => {
   >
     <MusicalNoteIcon className="h-8 w-8" />
     <span className="inline">Music</span>
+  </Link>
+</li>
+<li>
+<Link
+    to="/appar"
+    onClick={() => handleLinkClick("appar")}
+    className={`flex items-center space-x-3 text-cyan-500 
+      ${activeLink === "appar" ? "bg-cyan-500 text-white" : ""} 
+      rounded-full py-1 px-4 hover:bg-cyan-500 hover:text-white`}
+  >
+    <Squares2X2Icon className="h-8 w-8" />
+    <span className="inline">Appar</span>
   </Link>
 </li>
           <li>

@@ -162,6 +162,7 @@ const PostList: React.FC = () => {
 
   return (
     <div className="bg-black min-h-screen text-white font-sans px-4 py-8 flex items-start justify-start w-screen">
+      
       <div className="w-full max-w-6xl">
         {/* Ads Section */}
         <div className="p-1 mb-8">
@@ -190,10 +191,22 @@ const PostList: React.FC = () => {
         {/* Lista av posts */}
         <ul className="space-y-10">
           {filteredPosts.map((post, index) => (
-            <li
-              key={post.id}
-              className="p-6 bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300"
-            >
+           <li
+  key={post.id}
+  className="relative p-6 bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300"
+>
+  
+<div className="absolute bottom-4 right-4 
+                w-12 h-12 
+                sm:w-14 sm:h-14 
+                md:w-16 md:h-16 
+                lg:w-20 lg:h-20">
+  <img
+    src="/src/assets/mascot.png"
+    alt="CodeCraftsman mascot"
+    className="w-full h-full object-cover rounded-full border-2 border-cyan-500 shadow hover:scale-105 transition-transform"
+  />
+</div>
               {index === Math.floor(filteredPosts.length / 2) && (
                 <div className="my-8">
                   <AdsSection placement="middle" />

@@ -1,6 +1,7 @@
 import AdsSection from "../Ads/adsPage";
-import { SiApplemusic, SiSpotify,SiSoundcloud,SiYoutubemusic   } from "react-icons/si";
+import { SiApplemusic, SiSpotify, SiSoundcloud, SiYoutubemusic } from "react-icons/si";
 import { HiChartSquareBar } from "react-icons/hi";
+
 const MusicPage = () => {
   return (
     <div className="bg-black min-h-screen text-white font-sans px-4 py-8 flex items-start justify-start w-screen">
@@ -107,6 +108,33 @@ const MusicPage = () => {
               </div>
             </section>
 
+            {/* Latest EP */}
+            <section>
+              <h2 className="text-2xl sm:text-3xl font-semibold text-cyan-400 mb-4">
+                Latest EP: The Compile Abyss
+              </h2>
+              <p className="text-gray-300 leading-relaxed mb-4">
+                I'm excited to share my latest EP, <span className="font-semibold text-cyan-300">The Compile Abyss</span>, which is available to listen to directly on SoundCloud. Here's the full playlist:
+              </p>
+              <div className="w-full">
+                <iframe
+                  width="100%"
+                  height="300"
+                  scrolling="no"
+                  frameBorder="no"
+                  allow="autoplay"
+                  src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/2059610679&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"
+                ></iframe>
+                <div style={{ fontSize: '10px', color: '#cccccc', lineBreak: 'anywhere', wordBreak: 'normal', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', fontFamily: 'Interstate, Lucida Grande, Lucida Sans Unicode, Lucida Sans, Garuda, Verdana, Tahoma, sans-serif', fontWeight: '100' }}>
+                  <a href="https://soundcloud.com/codecraftsman" title="CodeCraftsMan" target="_blank" style={{ color: '#cccccc', textDecoration: 'none' }}>
+                    CodeCraftsMan
+                  </a> · 
+                  <a href="https://soundcloud.com/codecraftsman/sets/the-compile-abyss" title="The Compile Abyss" target="_blank" style={{ color: '#cccccc', textDecoration: 'none' }}>
+                    The Compile Abyss
+                  </a>
+                </div>
+              </div>
+            </section>
 
             {/* Join the Journey */}
             <section>
