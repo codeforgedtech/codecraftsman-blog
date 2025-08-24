@@ -8,7 +8,6 @@ import {
   ChevronRightIcon,
   StarIcon,
 } from "@heroicons/react/24/solid";
-import AdsSection from "../Ads/adsPage";
 
 interface Reviews {
   id: string;
@@ -22,20 +21,26 @@ interface Reviews {
   based_on: string[];
   origin: string;
   architecture: string[];
-  desktop_environment: [];
+  desktop_environment: string[]; // fix: specify string[]
   categories: string[];
   slug: string;
 }
+
+// Consistent rating component (always 5 stars, filled based on rating)
 const RatingStars: React.FC<{ rating: number }> = ({ rating }) => {
   const maxStars = 5;
   return (
-    <div className="flex items-center space-x-1">
-      {[...Array(Math.min(rating, maxStars))].map((_, i) => (
-        <StarIcon key={i} className="h-5 w-5 text-yellow-400" />
+    <div className="flex items-center gap-1" aria-label={`Rating ${rating} of ${maxStars}`}>
+      {Array.from({ length: maxStars }).map((_, i) => (
+        <StarIcon
+          key={i}
+          className={"h-5 w-5 " + (i < rating ? "text-yellow-400" : "text-white/20")}
+        />
       ))}
     </div>
   );
 };
+
 const SingleReview: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const [reviews, setReviews] = useState<Reviews | null>(null);
@@ -45,40 +50,52 @@ const SingleReview: React.FC = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-  const handleScrollToTop = () => {
-    window.scrollTo(0, 0);
-  };
+
+  const formatDate = (iso: string) =>
+    new Date(iso).toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+
+  const Badge = ({ children }: { children: React.ReactNode }) => (
+    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-cyan-500/10 text-cyan-300 ring-1 ring-cyan-400/20">
+      {children}
+    </span>
+  );
+
+  const Spec = ({ label, value }: { label: string; value: React.ReactNode }) => (
+    <div className="flex items-start gap-2 text-sm text-gray-300">
+      <span className="text-gray-400 min-w-[9rem]">{label}:</span>
+      <span className="font-medium text-gray-200">{value}</span>
+    </div>
+  );
+
   useEffect(() => {
     const fetchReviewsBySlug = async () => {
-      if (slug) {
-        const { data, error } = await supabase
-          .from("reviews")
-          .select("*")
-          .eq("slug", slug)
-          .single();
+      if (!slug) return;
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("*")
+        .eq("slug", slug)
+        .single();
 
-        if (error) {
-          console.error("Error fetching post by slug:", error.message);
-        } else {
-          setReviews(data);
-          if (data) {
-            fetchSimilarReviews(data.categories, data.id);
-          }
-        }
+      if (error) {
+        console.error("Error fetching post by slug:", error.message);
+        return;
       }
+
+      setReviews(data);
+      if (data) fetchSimilar(data.categories, data.id);
     };
 
-    const fetchSimilarReviews = async (
-      categories: string[],
-      reviewId: string
-    ) => {
+    const fetchSimilar = async (categories: string[], reviewId: string) => {
       const { data, error } = await supabase
         .from("reviews")
         .select("*")
         .contains("categories", categories)
         .neq("id", reviewId)
         .limit(4);
-
       if (error) {
         console.error("Error fetching similar reviews:", error.message);
       } else {
@@ -92,127 +109,124 @@ const SingleReview: React.FC = () => {
   if (!reviews) {
     return (
       <div className="bg-black min-h-screen flex items-center justify-center text-white">
-        <p>Loading...</p>
+        <div className="animate-pulse text-gray-400">Loading…</div>
       </div>
     );
   }
 
   return (
-    <div className="bg-black min-h-screen text-white font-sans px-4 py-8 flex items-start justify-start w-screen">
-      <div className="w-full max-w-6xl">
-        <div className="p-1 rounded-lg shadow-lg mp-2">
-          <AdsSection placement="post-top" />
-        </div>
+    <div className="bg-black min-h-screen text-white font-sans px-4 py-10 w-screen">
+      <div className="w-full max-w-6xl mx-auto">
+        {/* Header */}
+        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 bg-clip-text text-transparent mb-6">
+          {reviews.title}
+        </h1>
 
-        <div className="p-6 sm:p-10 bg-white rounded-2xl shadow-2xl">
-          <img
-            src={reviews.imageUrl}
-            alt={reviews.title}
-            className="w-full h-72 object-cover rounded-xl shadow-md mb-6 transition-transform duration-500 hover:scale-105"
-          />
+        {/* Main Card (glass + gradient border) */}
+        <div className="rounded-2xl p-[1px] bg-gradient-to-br from-cyan-500/30 via-white/10 to-transparent">
+          <div className="rounded-2xl bg-gradient-to-b from-slate-900 to-black p-5 sm:p-8 shadow-2xl">
+            {/* Hero image */}
+            {reviews.imageUrl && (
+              <div className="mb-6 overflow-hidden rounded-xl ring-1 ring-white/10">
+                <img
+                  src={reviews.imageUrl}
+                  alt={reviews.title}
+                  className="w-full h-64 sm:h-[420px] object-cover hover:scale-[1.01] transition-transform duration-500"
+                />
+              </div>
+            )}
 
-          <div className="flex items-center space-x-2">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 hover:text-cyan-600 transition">
-              {reviews.title}
-            </h1>
-          </div>
-          <div
-            className="text-gray-700 mb-6 text-base leading-relaxed"
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(reviews.content),
-            }}
-          />
-          <div className="text-sm text-gray-400 italic">
-            <CalendarIcon className="h-5 w-5 text-cyan-400 inline-block mr-1" />
-            {new Date(reviews.created_at).toLocaleDateString()}
-          </div>
-          <div className="mt-4 flex space-x-4">
-            <div className="flex items-center space-x-1">
+            {/* Meta row */}
+            <div className="flex flex-wrap items-center gap-4 text-sm text-gray-300/90 mb-2">
+              <span className="inline-flex items-center gap-2">
+                <CalendarIcon className="h-5 w-5 text-cyan-400" />
+                {formatDate(reviews.created_at)}
+              </span>
+              <span className="h-4 w-px bg-white/10" />
               <RatingStars rating={reviews.rating} />
             </div>
-          </div>
 
-          <div className="mt-4">
-            {reviews.categories.map((category, index) => (
-              <span
-                key={index}
-                className="bg-cyan-500 text-white text-xs font-semibold mr-2 mb-2 px-3 py-1 rounded-full inline-block"
-              >
-                {category}
-              </span>
-            ))}
-          </div>
-          <div className="mt-4 text-sm text-gray-300">
-            <div>
-              <strong>Version:</strong> {reviews.version}
-            </div>
-            <div>
-              <strong>OS Type:</strong> {reviews.os_type}
-            </div>
-            <div>
-              <strong>Based On:</strong> {reviews.based_on.join(", ")}
-            </div>
-            <div>
-              <strong>Origin:</strong> {reviews.origin}
-            </div>
-            <div>
-              <strong>Architecture:</strong> {reviews.architecture.join(", ")}
-            </div>
-            <div>
-              <strong>Desktop Environment:</strong>{" "}
-              {reviews.desktop_environment.join(", ")}
-            </div>
-          </div>
-
-          {/* Similar Reviews */}
-          {similarReviews.length > 0 && (
-            <div className="mt-8">
-              <h2 className="text-2xl text-cyan-400 mb-4">Similar Reviews</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {similarReviews.map((similarReview) => (
-                  <div
-                    key={similarReview.id}
-                    className="p-4 bg-white rounded-xl shadow-lg hover:shadow-2xl transition-shadow border border-gray-100"
-                  >
-                    <img
-                      src={similarReview.imageUrl}
-                      alt={similarReview.title}
-                      className="w-full h-40 object-cover rounded-lg mb-4"
-                    />
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2 hover:text-cyan-600 transition">
-                      {similarReview.title}
-                    </h3>
-                    <p className="text-sm text-gray-300 mb-2">
-                      <RatingStars rating={similarReview.rating} />
-                    </p>
-                    <Link
-                      to={`/review/${similarReview.slug}`}
-                      className="inline-block text-cyan-400 hover:text-cyan-300 mt-4 transition duration-300"
-                      onClick={handleScrollToTop}
-                    >
-                      Read more{" "}
-                      <ChevronRightIcon className="h-5 w-5 inline-block" />
-                    </Link>
-                  </div>
+            {/* Categories */}
+            {reviews.categories?.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {reviews.categories.map((c, i) => (
+                  <Badge key={i}>{c}</Badge>
                 ))}
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Back Button */}
-          <div className="mt-8 text-left">
-            <button
-              onClick={() => navigate(-1)}
-              className="inline-flex items-center gap-2 px-5 py-2.5 mt-6 text-sm font-medium text-cyan-600 bg-white border border-cyan-600 rounded-lg shadow hover:bg-cyan-600 hover:text-white transition-all duration-300"
-            >
-              <ChevronLeftIcon className="h-5 w-5" />
-              Back
-            </button>
+            {/* Content */}
+            <div
+              className="mt-6 text-gray-200 leading-relaxed space-y-4 break-words"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(reviews.content),
+              }}
+            />
+
+            {/* Specs */}
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Spec label="Version" value={reviews.version} />
+              <Spec label="OS Type" value={reviews.os_type} />
+              <Spec label="Based On" value={reviews.based_on?.join(", ") || "—"} />
+              <Spec label="Origin" value={reviews.origin} />
+              <Spec label="Architecture" value={reviews.architecture?.join(", ") || "—"} />
+              <Spec label="Desktop Env" value={reviews.desktop_environment?.join(", ") || "—"} />
+            </div>
+
+            {/* Back Button */}
+            <div className="mt-8">
+              <button
+                onClick={() => navigate(-1)}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-cyan-600 text-white hover:bg-cyan-500 transition-colors ring-1 ring-cyan-400/30"
+              >
+                <ChevronLeftIcon className="h-5 w-5" /> Back
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Similar Reviews */}
+        {similarReviews.length > 0 && (
+          <div className="mt-10">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+              Similar Reviews
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {similarReviews.map((s) => (
+                <div key={s.id} className="group rounded-2xl p-[1px] bg-gradient-to-br from-cyan-500/30 via-white/10 to-transparent">
+                  <div className="relative rounded-2xl bg-gradient-to-b from-slate-900 to-black p-4 h-full">
+                    {s.imageUrl && (
+                      <div className="mb-3 overflow-hidden rounded-xl ring-1 ring-white/10">
+                        <img
+                          src={s.imageUrl}
+                          alt={s.title}
+                          className="w-full h-36 object-cover group-hover:scale-[1.02] transition-transform duration-500"
+                        />
+                      </div>
+                    )}
+                    <h3 className="text-base font-semibold text-white line-clamp-2 mb-2">
+                      {s.title}
+                    </h3>
+                    <div className="mb-3">
+                      <RatingStars rating={s.rating} />
+                    </div>
+                    <Link
+                      to={`/review/${s.slug}`}
+                      className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-semibold rounded-lg bg-cyan-600 text-white hover:bg-cyan-500 transition-colors ring-1 ring-cyan-400/30"
+                      onClick={() => window.scrollTo(0, 0)}
+                    >
+                      Read more <ChevronRightIcon className="h-4 w-4" />
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
 export default SingleReview;
+

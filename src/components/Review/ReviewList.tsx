@@ -6,7 +6,6 @@ import {
   ChevronRightIcon,
   StarIcon,
 } from "@heroicons/react/24/solid";
-import AdsSection from "../Ads/adsPage";
 
 interface Review {
   id: string;
@@ -25,12 +24,18 @@ interface Review {
   slug: string;
 }
 
+// Visually consistent rating with 5 stars
 const RatingStars: React.FC<{ rating: number }> = ({ rating }) => {
   const maxStars = 5;
   return (
-    <div className="flex items-center space-x-1">
-      {[...Array(Math.min(rating, maxStars))].map((_, i) => (
-        <StarIcon key={i} className="h-5 w-5 text-yellow-400" />
+    <div className="flex items-center gap-1" aria-label={`Rating ${rating} of ${maxStars}`}>
+      {Array.from({ length: maxStars }).map((_, i) => (
+        <StarIcon
+          key={i}
+          className={
+            "h-5 w-5 " + (i < rating ? "text-yellow-400" : "text-white/20")
+          }
+        />
       ))}
     </div>
   );
@@ -46,7 +51,7 @@ const ReviewList: React.FC = () => {
         console.error("Error fetching reviews:", error.message);
       } else {
         const sortedReviews = data?.sort(
-          (a, b) =>
+          (a: Review, b: Review) =>
             new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
         setFilteredReviews(sortedReviews || []);
@@ -60,13 +65,9 @@ const ReviewList: React.FC = () => {
     const sorted = [...filteredReviews].sort((a, b) => {
       switch (type) {
         case "architecture":
-          return a.architecture
-            .join(", ")
-            .localeCompare(b.architecture.join(", "));
+          return a.architecture.join(", ").localeCompare(b.architecture.join(", "));
         case "desktop_environment":
-          return a.desktop_environment
-            .join(", ")
-            .localeCompare(b.desktop_environment.join(", "));
+          return a.desktop_environment.join(", ").localeCompare(b.desktop_environment.join(", "));
         case "rating":
           return b.rating - a.rating;
         default:
@@ -77,28 +78,52 @@ const ReviewList: React.FC = () => {
   };
 
   const getExcerpt = (content: string) => {
-    return content.length > 150 ? content.substring(0, 150) + "..." : content;
+    const clean = content.replace(/<[^>]+>/g, "");
+    return clean.length > 180 ? clean.slice(0, 180) + "…" : clean;
   };
 
+  const formatDate = (iso: string) =>
+    new Date(iso).toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+
+  const Badge = ({ children }: { children: React.ReactNode }) => (
+    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-cyan-500/10 text-cyan-300 ring-1 ring-cyan-400/20">
+      {children}
+    </span>
+  );
+
+  const Spec = ({ label, value }: { label: string; value: React.ReactNode }) => (
+    <div className="flex items-start gap-2 text-sm text-gray-300">
+      <span className="text-gray-400 min-w-[7rem]">{label}:</span>
+      <span className="font-medium text-gray-200">{value}</span>
+    </div>
+  );
+
   return (
-    <div className="bg-black min-h-screen text-white font-sans px-4 py-8 flex items-start justify-start w-screen">
-      <div className="w-full max-w-6xl">
-        <div className="p-1 rounded-lg shadow-lg mp-2">
-          <AdsSection placement="in-content" />
-        </div>
-        <h1 className="text-3xl sm:text-4xl font-bold text-left text-cyan-500 mb-8">
+    <div className="bg-black min-h-screen text-white font-sans px-4 py-10 w-screen">
+      <div className="w-full max-w-6xl mx-auto">
+        {/* Header */}
+        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 bg-clip-text text-transparent mb-8">
           Reviews
         </h1>
-        <div className="mb-4">
-          <label htmlFor="filter-sort" className="block text-cyan-400 mb-2">
-            Filter and Sort
+
+        {/* Filter & Sort */}
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-8">
+          <label htmlFor="filter-sort" className="text-sm text-gray-300">
+            Sort reviews by
           </label>
           <select
             id="filter-sort"
-            className="p-2 bg-gray-800 text-cyan-400 border border-gray-600 rounded"
+            className="p-2.5 bg-slate-900 text-white border border-white/10 rounded-lg text-sm shadow-inner focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
             onChange={(e) => handleSort(e.target.value)}
+            defaultValue=""
           >
-            <option value="">Select an option</option>
+            <option value="" disabled>
+              Select an option
+            </option>
             <optgroup label="Sort By">
               <option value="architecture">Architecture</option>
               <option value="desktop_environment">Desktop Environment</option>
@@ -107,92 +132,68 @@ const ReviewList: React.FC = () => {
           </select>
         </div>
 
-        <ul className="space-y-6">
+        {/* Reviews Grid */}
+        <ul className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {filteredReviews.map((review) => (
-            <li
-              key={review.id}
-              className="bg-white p-6 rounded-2xl shadow-xl flex flex-col sm:flex-row sm:items-start mb-8"
-            >
-              {review.imageUrl && (
-                <div className="w-full sm:w-1/3 mb-4 sm:mb-0 sm:mr-6">
-                  <img
-                    src={review.imageUrl}
-                    alt={review.title}
-                    className="w-full h-64 sm:h-auto object-cover rounded-xl shadow-md transition-transform duration-500 hover:scale-105"
-                  />
-                </div>
-              )}
+            <li key={review.id} className="group">
+              {/* Gradient border card */}
+              <div className="rounded-2xl p-[1px] bg-gradient-to-br from-cyan-500/30 via-white/10 to-transparent">
+                <div className="relative rounded-2xl bg-gradient-to-b from-slate-900 to-black p-5 shadow-2xl h-full">
+                  {/* Image */}
+                  {review.imageUrl && (
+                    <div className="mb-4 overflow-hidden rounded-xl ring-1 ring-white/10">
+                      <img
+                        src={review.imageUrl}
+                        alt={review.title}
+                        className="w-full h-44 sm:h-52 object-cover group-hover:scale-[1.02] transition-transform duration-500"
+                      />
+                    </div>
+                  )}
 
-              <div className="flex flex-col justify-between w-full sm:w-2/3">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-800 mb-2 hover:text-cyan-500 transition">
+                  {/* Title */}
+                  <h2 className="text-xl font-bold text-white mb-2 line-clamp-2">
                     {review.title}
                   </h2>
-                  <p
-                    className="text-gray-600 mb-4"
-                    dangerouslySetInnerHTML={{
-                      __html: getExcerpt(review.content),
-                    }}
-                  ></p>
 
-                  <div className="flex flex-wrap mb-4">
-                    {Array.isArray(review.categories) ? (
-                      review.categories.map((category, index) => (
-                        <span
-                          key={index}
-                          className="bg-cyan-500 text-white text-xs font-bold mr-2 mb-2 px-2.5 py-0.5 rounded"
-                        >
-                          {category}
-                        </span>
-                      ))
+                  {/* Excerpt */}
+                  <p className="text-gray-300 text-sm leading-relaxed mb-4">
+                    {getExcerpt(review.content)}
+                  </p>
+
+                  {/* Categories */}
+                  <div className="flex flex-wrap items-center gap-2 mb-4 min-h-[1.75rem]">
+                    {Array.isArray(review.categories) && review.categories.length > 0 ? (
+                      review.categories.map((c, i) => <Badge key={i}>{c}</Badge>)
                     ) : (
-                      <span className="text-gray-400">No categories</span>
+                      <span className="text-gray-500 text-sm">No categories</span>
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm text-gray-700 mb-4">
-                    <div>
-                      <strong>Version:</strong> {review.version}
-                    </div>
-                    <div>
-                      <strong>OS Type:</strong> {review.os_type}
-                    </div>
-                    <div>
-                      <strong>Based On:</strong> {review.based_on.join(", ")}
-                    </div>
-                    <div>
-                      <strong>Origin:</strong> {review.origin}
-                    </div>
-                    <div>
-                      <strong>Architecture:</strong>{" "}
-                      {review.architecture.join(", ")}
-                    </div>
-                    <div>
-                      <strong>Desktop Env:</strong>{" "}
-                      {review.desktop_environment.join(", ")}
-                    </div>
+                  {/* Specs */}
+                  <div className="grid grid-cols-1 gap-1.5 mb-4">
+                    <Spec label="Version" value={review.version} />
+                    <Spec label="OS Type" value={review.os_type} />
+                    <Spec label="Based On" value={review.based_on?.join(", ") || "—"} />
+                    <Spec label="Origin" value={review.origin} />
+                    <Spec label="Architecture" value={review.architecture?.join(", ") || "—"} />
+                    <Spec label="Desktop Env" value={review.desktop_environment?.join(", ") || "—"} />
                   </div>
-                </div>
 
-                <div className="flex items-center justify-between mt-4">
-                  <div className="flex items-center space-x-2">
-                    <CalendarIcon className="h-5 w-5 text-cyan-500" />
-                    <span className="text-gray-400 text-sm">
-                      {new Date(review.created_at).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <div className="flex items-center">
+                  {/* Footer: date + rating + CTA */}
+                  <div className="mt-auto flex items-center justify-between gap-3">
+                    <div className="inline-flex items-center gap-2 text-xs text-gray-400">
+                      <CalendarIcon className="h-4 w-4 text-cyan-400" />
+                      {formatDate(review.created_at)}
+                    </div>
                     <RatingStars rating={review.rating} />
                   </div>
-                </div>
 
-                <div className="mt-6">
                   <Link
                     to={`/review/${review.slug}`}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 mt-6 text-sm font-medium text-cyan-600 bg-white border border-cyan-600 rounded-lg shadow hover:bg-cyan-600 hover:text-white transition-all duration-300"
+                    className="mt-4 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-cyan-600 text-white hover:bg-cyan-500 transition-colors ring-1 ring-cyan-400/30"
+                    aria-label={`Read more about ${review.title}`}
                   >
-                    Read more{" "}
-                    <ChevronRightIcon className="h-5 w-5 inline-block" />
+                    Read more <ChevronRightIcon className="h-5 w-5" />
                   </Link>
                 </div>
               </div>
@@ -205,3 +206,4 @@ const ReviewList: React.FC = () => {
 };
 
 export default ReviewList;
+

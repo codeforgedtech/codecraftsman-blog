@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import {
   HomeIcon,
   InformationCircleIcon,
@@ -14,158 +14,112 @@ import {
 } from "@heroicons/react/24/solid";
 import logo from "../../assets/logo.svg";
 
+const NAV_ITEMS = [
+  { to: "/", label: "Home", icon: HomeIcon, match: (p: string) => p === "/" },
+  { to: "/archive", label: "Archive", icon: ArchiveBoxIcon, match: (p: string) => p.startsWith("/archive") },
+  { to: "/music", label: "Music", icon: MusicalNoteIcon, match: (p: string) => p.startsWith("/music") },
+  { to: "/appar", label: "Appar", icon: Squares2X2Icon, match: (p: string) => p.startsWith("/appar") },
+  { to: "/store", label: "Store", icon: ShoppingBagIcon, match: (p: string) => p.startsWith("/store") },
+  { to: "/about", label: "About", icon: InformationCircleIcon, match: (p: string) => p.startsWith("/about") },
+  { to: "/contact", label: "Contact", icon: CubeIcon, match: (p: string) => p.startsWith("/contact") },
+  { to: "/reviews", label: "Reviews", icon: StarIcon, match: (p: string) => p.startsWith("/reviews") },
+];
+
 const Sidebar: React.FC = () => {
-  const [activeLink, setActiveLink] = useState<string | null>(null);
+  const { pathname } = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const handleLinkClick = (link: string) => {
-    setActiveLink(link);
-    setIsSidebarOpen(false); // Stänger sidofältet efter att en länk är vald
-  };
+  // Close on route change (mobile)
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [pathname]);
+
+  // Close with Escape & lock body scroll when open
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsSidebarOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    if (isSidebarOpen) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [isSidebarOpen]);
+
+  const Item: React.FC<{ to: string; label: string; Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; active: boolean }>
+    = ({ to, label, Icon, active }) => {
+      const base = "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors ring-1";
+      const activeCls = "bg-cyan-600/20 text-white ring-cyan-400/30";
+      const idleCls = "text-cyan-300 hover:text-white hover:bg-cyan-500/10 ring-white/10";
+      return (
+        <Link to={to} className={`${base} ${active ? activeCls : idleCls}`}>
+          <Icon className="h-6 w-6" />
+          <span>{label}</span>
+        </Link>
+      );
+    };
 
   return (
     <>
-      {/* Hamburger Menu for Mobile */}
+      {/* Mobile hamburger */}
       <button
-        className="fixed top-4 left-4 z-50 bg-cyan-500 p-2 rounded-md text-white md:hidden"
-        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        className="fixed top-4 right-4 z-[60] inline-flex items-center justify-center h-10 w-10 rounded-xl bg-cyan-600 text-white ring-1 ring-cyan-400/30 hover:bg-cyan-500 md:hidden"
+        onClick={() => setIsSidebarOpen((s) => !s)}
+        aria-label="Toggle sidebar"
+        aria-expanded={isSidebarOpen}
       >
-        {isSidebarOpen ? (
-          <XMarkIcon className="h-6 w-6" />
-        ) : (
-          <Bars3Icon className="h-6 w-6" />
-        )}
+        {isSidebarOpen ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
       </button>
 
-      {/* Overlay for when the sidebar is open */}
+      {/* Overlay */}
       {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40"
-          onClick={() => setIsSidebarOpen(false)}
-        />
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 md:hidden" onClick={() => setIsSidebarOpen(false)} />
       )}
 
       {/* Sidebar */}
-      <div
-        className={`fixed left-0 top-0 h-full bg-black text-white p-6 shadow-xl transform transition-all duration-300 
-  ${
-    isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-  } md:translate-x-0 md:relative md:w-48 md:h-full z-50`} // ändrat från w-64 till w-48
+      <aside
+        className={`fixed right-0 top-0 z-50 h-full w-64 p-4 transition-transform duration-300 md:relative md:left-0 md:right-auto md:translate-x-0 md:w-56 md:h-screen
+        ${isSidebarOpen ? "translate-x-0" : "translate-x-full"}`}
+        aria-label="Primary sidebar"
       >
-        <div className="flex justify-center items-center mb-4">
-<div className="flex justify-center items-center mb-4">
-  <img
-    src={logo}
-    alt="Logo"
-    className="h-16 sm:h-20 md:h-28 lg:h-32 w-auto object-contain
-               drop-shadow-[0_0_10px_#22d3ee] md:drop-shadow-[0_0_20px_#22d3ee] animate-pulse"
-  />
-</div>
-</div>
+        {/* Glass/gradient shell */}
+        <div className="h-full rounded-2xl p-[1px] bg-gradient-to-br from-cyan-500/30 via-white/10 to-transparent shadow-2xl">
+          <div className="flex h-full flex-col rounded-2xl bg-gradient-to-b from-slate-900 to-black p-4 ring-1 ring-white/10">
+            {/* Logo */}
+            <div className="mb-6 flex items-center justify-center">
+              <img
+                src={logo}
+                alt="Logo"
+                className="h-16 w-auto object-contain drop-shadow-[0_0_10px_#22d3ee] md:drop-shadow-[0_0_16px_#22d3ee]"
+              />
+            </div>
 
-        <ul className="space-y-2">
-          <li>
-            <Link
-              to="/"
-              onClick={() => handleLinkClick("home")}
-              className={`flex items-center space-x-3 text-cyan-500 
-      ${activeLink === "home" ? "bg-cyan-500 text-white" : ""} 
-      rounded-full py-1 px-4 hover:bg-cyan-500 hover:text-white`}
-            >
-              <HomeIcon className="h-8 w-8" />
-              <span className="inline">Home</span> {/* Ändrat här */}
-            </Link>
-          </li>
+            {/* Nav */}
+            <nav className="flex-1 overflow-y-auto">
+              <ul className="space-y-2">
+                {NAV_ITEMS.map(({ to, label, icon: Icon, match }) => (
+                  <li key={to}>
+                    <Item to={to} label={label} Icon={Icon} active={match(pathname)} />
+                  </li>
+                ))}
+              </ul>
+            </nav>
 
-          <li>
-            <Link
-              to="/archive"
-              onClick={() => handleLinkClick("archive")}
-              className={`flex items-center space-x-3 text-cyan-500 
-              ${activeLink === "archive" ? "bg-cyan-500 text-white" : ""} 
-              rounded-full py-1 px-4 hover:bg-cyan-500 hover:text-white`}
-            >
-              <ArchiveBoxIcon className="h-8 w-8" />
-              <span className="inline">Archive</span>
-            </Link>
-          </li>
-          <li>
-  <Link
-    to="/music"
-    onClick={() => handleLinkClick("music")}
-    className={`flex items-center space-x-3 text-cyan-500 
-      ${activeLink === "music" ? "bg-cyan-500 text-white" : ""} 
-      rounded-full py-1 px-4 hover:bg-cyan-500 hover:text-white`}
-  >
-    <MusicalNoteIcon className="h-8 w-8" />
-    <span className="inline">Music</span>
-  </Link>
-</li>
-<li>
-<Link
-    to="/appar"
-    onClick={() => handleLinkClick("appar")}
-    className={`flex items-center space-x-3 text-cyan-500 
-      ${activeLink === "appar" ? "bg-cyan-500 text-white" : ""} 
-      rounded-full py-1 px-4 hover:bg-cyan-500 hover:text-white`}
-  >
-    <Squares2X2Icon className="h-8 w-8" />
-    <span className="inline">Appar</span>
-  </Link>
-</li>
-          <li>
-            <Link
-              to="/store"
-              onClick={() => handleLinkClick("store")}
-              className={`flex items-center space-x-3 text-cyan-500 
-              ${activeLink === "store" ? "bg-cyan-500 text-white" : ""} 
-              rounded-full py-1 px-4 hover:bg-cyan-500 hover:text-white`}
-            >
-              <ShoppingBagIcon className="h-8 w-8" />
-              <span className="inline">Store</span>
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/about"
-              onClick={() => handleLinkClick("about")}
-              className={`flex items-center space-x-3 text-cyan-500 
-              ${activeLink === "about" ? "bg-cyan-500 text-white" : ""} 
-              rounded-full py-1 px-4 hover:bg-cyan-500 hover:text-white`}
-            >
-              <InformationCircleIcon className="h-8 w-8" />
-              <span className="inline">About</span>
-            </Link>
-          </li>
-          
-          <li>
-            <Link
-              to="/contact"
-              onClick={() => handleLinkClick("contact")}
-              className={`flex items-center space-x-3 text-cyan-500 
-              ${activeLink === "contact" ? "bg-cyan-500 text-white" : ""} 
-              rounded-full py-1 px-4 hover:bg-cyan-500 hover:text-white`}
-            >
-              <CubeIcon className="h-8 w-8" />
-              <span className="inline">Contact</span>
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/reviews"
-              onClick={() => handleLinkClick("reviews")}
-              className={`flex items-center space-x-3 text-cyan-500 
-              ${activeLink === "reviews" ? "bg-cyan-500 text-white" : ""} 
-              rounded-full py-1 px-4 hover:bg-cyan-500 hover:text-white`}
-            >
-              <StarIcon className="h-8 w-8" />
-              <span className="inline">Reviews</span>
-            </Link>
-          </li>
-        </ul>
-      </div>
+            {/* Footer */}
+            <div className="mt-4 text-center text-[11px] text-gray-400">
+              <span className="inline-block rounded-full bg-white/5 px-2 py-1 ring-1 ring-white/10">
+                © {new Date().getFullYear()} CodeCraftsMan
+              </span>
+            </div>
+          </div>
+        </div>
+      </aside>
     </>
   );
 };
 
 export default Sidebar;
+
+

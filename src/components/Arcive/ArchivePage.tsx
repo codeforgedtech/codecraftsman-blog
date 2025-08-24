@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { supabase } from "../../supabaseClient";
 import {
   CalendarIcon,
@@ -8,9 +8,9 @@ import {
   TagIcon,
   FolderIcon,
   ComputerDesktopIcon,
+  StarIcon,
 } from "@heroicons/react/24/solid";
 import { Link } from "react-router-dom";
-import AdsSection from "../Ads/adsPage";
 
 interface Post {
   id: string;
@@ -42,273 +42,280 @@ interface Review {
   slug: string;
 }
 
+const RatingStars: React.FC<{ rating: number }> = ({ rating }) => {
+  const max = 5;
+  return (
+    <div className="flex items-center gap-1" aria-label={`Rating ${rating} of ${max}`}>
+      {Array.from({ length: max }).map((_, i) => (
+        <StarIcon key={i} className={`h-4 w-4 ${i < rating ? "text-yellow-400" : "text-white/20"}`} />
+      ))}
+    </div>
+  );
+};
+
+const Badge = ({ children }: { children: React.ReactNode }) => (
+  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-cyan-500/10 text-cyan-300 ring-1 ring-cyan-400/20">
+    {children}
+  </span>
+);
+
+const formatDate = (iso: string) =>
+  new Date(iso).toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+
+const getExcerpt = (html: string, maxLen = 160) => {
+  const text = html.replace(/<[^>]+>/g, "").trim();
+  return text.length > maxLen ? text.slice(0, maxLen) + "…" : text;
+};
+
 const ArchivePage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"posts" | "reviews">("posts");
   const [posts, setPosts] = useState<Post[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [filteredItems, setFilteredItems] = useState<(Post | Review)[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(5);
   const [sortOption, setSortOption] = useState("date");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(6);
 
   useEffect(() => {
     const fetchPosts = async () => {
-      const { data, error } = await supabase.from("posts").select("*");
-      if (error) {
-        console.error("Error fetching posts:", error.message);
-      } else {
-        setPosts(data || []);
-      }
+      const { data } = await supabase.from("posts").select("*");
+      setPosts(data || []);
     };
 
     const fetchReviews = async () => {
-      const { data, error } = await supabase.from("reviews").select("*");
-      if (error) {
-        console.error("Error fetching reviews:", error.message);
-      } else {
-        setReviews(data || []);
-      }
+      const { data } = await supabase.from("reviews").select("*");
+      setReviews(data || []);
     };
 
     fetchPosts();
     fetchReviews();
   }, []);
 
+  // reset pagination on tab/sort change
   useEffect(() => {
-    const items = activeTab === "posts" ? posts : reviews;
-    const sortedItems = sortItems(items);
-    setFilteredItems(sortedItems);
+    setCurrentPage(1);
+  }, [activeTab, sortOption, itemsPerPage]);
+
+  const sortedItems = useMemo(() => {
+    const list = activeTab === "posts" ? [...posts] : [...reviews];
+    if (sortOption === "date") {
+      return list.sort(
+        (a, b) => new Date((b as Post | Review).created_at).getTime() - new Date((a as Post | Review).created_at).getTime()
+      );
+    }
+    if (activeTab === "reviews" && sortOption === "rating") {
+      return (list as Review[]).sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+    }
+    if (activeTab === "posts" && sortOption === "views") {
+      return (list as Post[]).sort((a, b) => (b.views ?? 0) - (a.views ?? 0));
+    }
+    return list;
   }, [activeTab, posts, reviews, sortOption]);
 
-  const sortItems = (items: (Post | Review)[]) => {
-    if (sortOption === "date") {
-      return [...items].sort(
-        (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      );
-    } else if (sortOption === "rating" && activeTab === "reviews") {
-      return [...(items as Review[])].sort((a, b) => b.rating - a.rating);
-    } else if (sortOption === "views" && activeTab === "posts") {
-      return [...(items as Post[])].sort((a, b) => b.views - a.views);
-    }
-    return items;
-  };
-
+  const totalPages = Math.max(1, Math.ceil(sortedItems.length / itemsPerPage));
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = sortedItems.slice(indexOfFirstItem, indexOfLastItem);
 
   const paginatePrev = () => {
-    setCurrentPage(currentPage - 1);
+    setCurrentPage((p) => Math.max(1, p - 1));
     window.scrollTo(0, 0);
   };
 
   const paginateNext = () => {
-    setCurrentPage(currentPage + 1);
+    setCurrentPage((p) => Math.min(totalPages, p + 1));
     window.scrollTo(0, 0);
   };
-  const handleScrollToTop = () => {
-    window.scrollTo(0, 0);
-  };
+
   return (
-    <div className="bg-black min-h-screen text-white font-sans px-4 py-8 flex items-start justify-start w-screen">
-      <div className="w-full max-w-6xl">
-        <div className="p-1 rounded-lg shadow-lg mp-2">
-          <AdsSection placement="in-content" />
-        </div>
-        <h1 className="text-3xl sm:text-4xl font-bold text-left text-cyan-500 mb-8">
+    <div className="bg-black min-h-screen text-white font-sans px-4 py-10 w-screen">
+      <div className="w-full max-w-6xl mx-auto">
+        {/* Header */}
+        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 bg-clip-text text-transparent mb-6">
           {activeTab === "posts" ? "Posts Archive" : "Reviews Archive"}
         </h1>
 
-        {/* Tab Selector */}
-        <div className="flex space-x-4 mb-8">
+        {/* Tabs */}
+        <div className="inline-flex items-center rounded-xl bg-slate-900 ring-1 ring-white/10 p-1 mb-6">
           <button
             onClick={() => setActiveTab("posts")}
-            className={`px-4 py-2 rounded ${
+            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
               activeTab === "posts"
                 ? "bg-cyan-600 text-white"
-                : "bg-gray-800 text-cyan-400"
+                : "text-gray-300 hover:text-white"
             }`}
+            aria-pressed={activeTab === "posts"}
           >
             Posts
           </button>
           <button
             onClick={() => setActiveTab("reviews")}
-            className={`px-4 py-2 rounded ${
+            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
               activeTab === "reviews"
                 ? "bg-cyan-600 text-white"
-                : "bg-gray-800 text-cyan-400"
+                : "text-gray-300 hover:text-white"
             }`}
+            aria-pressed={activeTab === "reviews"}
           >
             Reviews
           </button>
         </div>
 
-        {/* Sort Options */}
-        <div className="mb-4 flex flex-col sm:flex-row gap-4">
-          <div className="w-full sm:w-auto">
-            <label htmlFor="sort-options" className="block text-cyan-400 mb-2">
-              Sort {activeTab === "posts" ? "Posts" : "Reviews"}
+        {/* Toolbar */}
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-8">
+          <div className="flex items-center gap-2">
+            <label htmlFor="sort-options" className="text-sm text-gray-300">
+              Sort by
             </label>
             <select
               id="sort-options"
               onChange={(e) => setSortOption(e.target.value)}
               value={sortOption}
-              className="w-full sm:w-auto px-4 py-2 rounded bg-gray-800 text-cyan-400 border border-gray-600"
+              className="p-2.5 bg-slate-900 text-white border border-white/10 rounded-lg text-sm shadow-inner focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
             >
-              <option value="date">Sort by Date</option>
-              {activeTab === "posts" && (
-                <option value="views">Sort by Views</option>
-              )}
-              {activeTab === "reviews" && (
-                <option value="rating">Sort by Rating</option>
-              )}
+              <option value="date">Date</option>
+              {activeTab === "posts" && <option value="views">Views</option>}
+              {activeTab === "reviews" && <option value="rating">Rating</option>}
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <label htmlFor="ipp" className="text-sm text-gray-300">
+              Per page
+            </label>
+            <select
+              id="ipp"
+              value={itemsPerPage}
+              onChange={(e) => setItemsPerPage(parseInt(e.target.value))}
+              className="p-2.5 bg-slate-900 text-white border border-white/10 rounded-lg text-sm shadow-inner focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
+            >
+              {[6, 9, 12].map((n) => (
+                <option key={n} value={n}>{n}</option>
+              ))}
             </select>
           </div>
         </div>
 
-        {/* Items List */}
-        <ul className="space-y-6">
+        {/* Grid */}
+        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {currentItems.map((item: Post | Review) => (
-            <li
-              key={item.id}
-              className="p-4 sm:p-6 bg-gradient-to-r from-gray-800 via-gray-900 to-black rounded-xl shadow-lg"
-            >
-              {"images" in item && item.images[0] && (
-                <img
-                  src={item.images[0]}
-                  alt={item.title}
-                  className="w-full h-64 object-cover rounded-lg mb-4 border-4 border-cyan-500 shadow-xl"
-                />
-              )}
-              {"imageUrl" in item && item.imageUrl && (
-                <img
-                  src={item.imageUrl}
-                  alt={item.title}
-                  className="w-full h-64 object-cover rounded-lg mb-4 border-4 border-cyan-500 shadow-xl"
-                />
-              )}
-              <h2 className="text-xl sm:text-2xl font-semibold text-cyan-400 mb-4 hover:text-cyan-300 transition duration-300">
-                {item.title}
-              </h2>
+            <li key={item.id} className="group">
+              <div className="rounded-2xl p-[1px] bg-gradient-to-br from-cyan-500/30 via-white/10 to-transparent">
+                <div className="relative rounded-2xl bg-gradient-to-b from-slate-900 to-black p-5 shadow-2xl h-full">
+                  {/* Image */}
+                  {"images" in item && item.images?.[0] && (
+                    <div className="mb-4 overflow-hidden rounded-xl ring-1 ring-white/10">
+                      <img
+                        src={item.images[0]}
+                        alt={item.title}
+                        className="w-full h-44 sm:h-52 object-cover group-hover:scale-[1.02] transition-transform duration-500"
+                      />
+                    </div>
+                  )}
+                  {"imageUrl" in item && item.imageUrl && (
+                    <div className="mb-4 overflow-hidden rounded-xl ring-1 ring-white/10">
+                      <img
+                        src={item.imageUrl}
+                        alt={item.title}
+                        className="w-full h-44 sm:h-52 object-cover group-hover:scale-[1.02] transition-transform duration-500"
+                      />
+                    </div>
+                  )}
 
-              <div className="flex justify-between items-center text-sm text-gray-500">
-                <span className="flex items-center space-x-1">
-                  <CalendarIcon className="h-5 w-5" />
-                  <span>{new Date(item.created_at).toLocaleDateString()}</span>
-                </span>
-                {"rating" in item && (
-                  <span className="flex items-center space-x-1 text-yellow-400 font-semibold">
-                    {/* Render stjärnor */}
-                    {Array.from({ length: 5 }, (_, index) => (
-                      <span key={index}>
-                        {index < item.rating ? (
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5 fill-current text-yellow-400"
-                            viewBox="0 0 24 24"
-                            stroke="none"
-                          >
-                            <path
-                              fill="currentColor"
-                              d="M12 17.75l-5.45 3.01 1.04-6.06L1.7 9.24l6.16-.51L12 2l2.14 6.73 6.16.51-4.89 5.46 1.04 6.06z"
-                            />
-                          </svg>
-                        ) : (
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5 fill-current text-gray-400"
-                            viewBox="0 0 24 24"
-                            stroke="none"
-                          >
-                            <path
-                              fill="currentColor"
-                              d="M12 17.75l-5.45 3.01 1.04-6.06L1.7 9.24l6.16-.51L12 2l2.14 6.73 6.16.51-4.89 5.46 1.04 6.06z"
-                            />
-                          </svg>
-                        )}
-                      </span>
-                    ))}
-                  </span>
-                )}
-              </div>
+                  {/* Title */}
+                  <h2 className="text-lg font-bold text-white mb-2 line-clamp-2">
+                    {item.title}
+                  </h2>
 
-              <div className="mt-4 flex items-center">
-                <FolderIcon className="w-4 h-4 text-cyan-700 mr-2" />{" "}
-                {/* Kategori-ikon */}
-                {item.categories.map((category, index) => (
-                  <span
-                    key={index}
-                    className="bg-cyan-700 text-white text-xs font-bold mr-2 px-2.5 py-0.5 rounded"
-                  >
-                    {category}
-                  </span>
-                ))}
-              </div>
+                  {/* Excerpt */}
+                  <p className="text-gray-300 text-sm leading-relaxed mb-4">
+                    {getExcerpt(activeTab === "posts" ? (item as Post).content : (item as Review).content || "")}
+                  </p>
 
-              <div className="mt-4 flex items-center">
-                {activeTab === "posts" && (
-                  <>
-                    <TagIcon className="w-4 h-4 text-cyan-700 mr-2" />{" "}
-                    {"tags" in item &&
-                      item.tags.map((tag: string, index: number) => (
-                        <span
-                          key={index}
-                          className="bg-cyan-700 text-white text-xs font-bold mr-2 px-2.5 py-0.5 rounded"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                  </>
-                )}
-              </div>
-
-              {/* Render desktop_environment for reviews */}
-              {"desktop_environment" in item && item.desktop_environment && (
-                <div className="mt-4 flex items-center">
-                  <span className="text-cyan-700 font-semibold mr-2">
-                    <ComputerDesktopIcon className="w-4 h-4 text-cyan-700 mr-2" />
-                  </span>
-                  {item.desktop_environment.map((de, index) => (
-                    <span
-                      key={index}
-                      className="bg-cyan-700 text-white text-xs font-bold mr-2 px-2.5 py-0.5 rounded"
-                    >
-                      {de}
+                  {/* Meta */}
+                  <div className="flex flex-wrap items-center gap-4 text-xs text-gray-400 mb-3">
+                    <span className="inline-flex items-center gap-1.5">
+                      <CalendarIcon className="h-4 w-4 text-cyan-400" />
+                      {formatDate(item.created_at)}
                     </span>
-                  ))}
-                </div>
-              )}
+                    {"rating" in item && (
+                      <span className="inline-flex items-center gap-2">
+                        <RatingStars rating={(item as Review).rating} />
+                      </span>
+                    )}
+                  </div>
 
-              <Link
-                to={`/${activeTab === "posts" ? "post" : "review"}/${
-                  item.slug
-                }`}
-                className="inline-block text-cyan-400 hover:text-cyan-300 mt-4 py-2 px-6 border-2 border-cyan-400 rounded-lg shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                onClick={handleScrollToTop}
-              >
-                Read more <ChevronRightIcon className="h-5 w-5 inline-block" />
-              </Link>
+                  {/* Categories */}
+                  {item.categories?.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <FolderIcon className="h-4 w-4 text-cyan-400" />
+                      <div className="flex flex-wrap gap-2">
+                        {item.categories.map((category, i) => (
+                          <Badge key={i}>{category}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Tags for posts */}
+                  {activeTab === "posts" && "tags" in item && item.tags?.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <TagIcon className="h-4 w-4 text-cyan-400" />
+                      <div className="flex flex-wrap gap-2">
+                        {item.tags.map((tag, i) => (
+                          <Badge key={i}>#{tag}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Desktop env for reviews */}
+                  {"desktop_environment" in item && (item as Review).desktop_environment?.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <ComputerDesktopIcon className="h-4 w-4 text-cyan-400" />
+                      <div className="flex flex-wrap gap-2">
+                        {(item as Review).desktop_environment.map((de, i) => (
+                          <Badge key={i}>{de}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* CTA */}
+                  <Link
+                    to={`/${activeTab === "posts" ? "post" : "review"}/${item.slug}`}
+                    className="mt-3 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-cyan-600 text-white hover:bg-cyan-500 transition-colors ring-1 ring-cyan-400/30"
+                    onClick={() => window.scrollTo(0, 0)}
+                    aria-label={`Read more about ${item.title}`}
+                  >
+                    Read more <ChevronRightIcon className="h-5 w-5" />
+                  </Link>
+                </div>
+              </div>
             </li>
           ))}
         </ul>
 
         {/* Pagination */}
-        <div className="flex justify-center sm:justify-between items-center mt-8">
+        <div className="mt-10 flex items-center justify-center gap-4">
           <button
-            className="px-4 py-2 bg-cyan-600 text-white rounded-md hover:bg-cyan-700 disabled:opacity-50"
+            className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-slate-900 text-white ring-1 ring-white/10 hover:ring-cyan-400/40 disabled:opacity-40"
             onClick={paginatePrev}
             disabled={currentPage === 1}
+            aria-label="Previous page"
           >
             <ArrowLeftIcon className="h-5 w-5" />
           </button>
-          <span className="mx-4 text-cyan-400 font-semibold">
-            {currentPage} of {Math.ceil(filteredItems.length / itemsPerPage)}
+          <span className="text-sm text-gray-300">
+            Page <span className="font-semibold text-white">{currentPage}</span> of {totalPages}
           </span>
           <button
-            className="px-4 py-2 bg-cyan-600 text-white rounded-md hover:bg-cyan-700 disabled:opacity-50"
+            className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-slate-900 text-white ring-1 ring-white/10 hover:ring-cyan-400/40 disabled:opacity-40"
             onClick={paginateNext}
-            disabled={indexOfLastItem >= filteredItems.length}
+            disabled={currentPage >= totalPages}
+            aria-label="Next page"
           >
             <ArrowRightIcon className="h-5 w-5" />
           </button>
@@ -319,3 +326,4 @@ const ArchivePage: React.FC = () => {
 };
 
 export default ArchivePage;
+

@@ -10,7 +10,6 @@ import {
   FolderIcon,
 } from "@heroicons/react/24/solid";
 import SearchBar from "../Search/SearchBar";
-import AdsSection from "../Ads/adsPage";
 
 interface PostList {
   id: string;
@@ -54,9 +53,15 @@ const PostList: React.FC = () => {
   const [, setLikes] = useState<Like[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage] = useState<string>("");
+
+  // search/filter
   const [searchType, setSearchType] = useState("content");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filteredPosts, setFilteredPosts] = useState<PostList[]>(posts);
+
+  // pagination
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -111,6 +116,13 @@ const PostList: React.FC = () => {
     fetchLikes();
   }, []);
 
+  const formatDate = (iso: string) =>
+    new Date(iso).toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+
   const handleSearch = (term: string) => {
     setSearchTerm(term);
     if (!term) {
@@ -137,14 +149,18 @@ const PostList: React.FC = () => {
     }
   };
 
+  // Reset till sida 1 när filter/sök/sidstorlek ändras
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, searchType, posts, pageSize]);
+
   const getExcerpt = (content: string) => {
-    return content.length > 150 ? content.substring(0, 150) + "..." : content;
+    const clean = content.replace(/<[^>]+>/g, "");
+    return clean.length > 180 ? clean.substring(0, 180) + "…" : clean;
   };
 
   const getCommentCount = (postId: string) => {
-    const postComments = comments.filter(
-      (comment) => comment.post_id === postId
-    );
+    const postComments = comments.filter((comment) => comment.post_id === postId);
     const postReplies = replies.filter((reply) =>
       postComments.some((comment) => comment.id === reply.comment_id)
     );
@@ -160,24 +176,38 @@ const PostList: React.FC = () => {
     window.scrollTo(0, 0);
   };
 
-  return (
-    <div className="bg-black min-h-screen text-white font-sans px-4 py-8 flex items-start justify-start w-screen">
-      
-      <div className="w-full max-w-6xl">
-        {/* Ads Section */}
-        <div className="p-1 mb-8">
-          <AdsSection placement="post-top" />
-        </div>
+  const Badge = ({ children }: { children: React.ReactNode }) => (
+    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-cyan-500/10 text-cyan-300 ring-1 ring-cyan-400/20">
+      {children}
+    </span>
+  );
 
-        <h1 className="text-3xl sm:text-4xl font-bold text-cyan-600 mb-8">
+  // Pagination calculations
+  const totalItems = filteredPosts.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, totalItems);
+  const pageItems = filteredPosts.slice(startIndex, endIndex);
+
+  const goToPage = (p: number) => {
+    const clamped = Math.min(Math.max(1, p), totalPages);
+    setCurrentPage(clamped);
+    handleScrollToTop();
+  };
+
+  return (
+    <div className="bg-black min-h-screen text-white font-sans px-4 py-10 w-screen">
+      <div className="w-full max-w-6xl mx-auto">
+        {/* Header */}
+        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 bg-clip-text text-transparent mb-8">
           Posts
         </h1>
 
-        {/* Filter och Search */}
-        <div className="flex flex-wrap items-center gap-4 mb-8">
+        {/* Filters & Search + Page size */}
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-8">
           <select
             id="filter-dropdown"
-            className="p-2 bg-white text-cyan-600 border border-cyan-600 rounded-lg text-sm shadow hover:border-cyan-400 transition-all"
+            className="p-2.5 bg-slate-900 text-white border border-white/10 rounded-lg text-sm shadow-inner focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
             value={searchType}
             onChange={(e) => setSearchType(e.target.value)}
           >
@@ -185,106 +215,147 @@ const PostList: React.FC = () => {
             <option value="category">Category</option>
             <option value="tag">Tags</option>
           </select>
+
           <SearchBar value={searchTerm} onSearch={handleSearch} />
+
+          <div className="ml-auto flex items-center gap-2">
+            <label htmlFor="page-size" className="text-sm text-gray-300">
+              Per page
+            </label>
+            <select
+              id="page-size"
+              value={pageSize}
+              onChange={(e) => setPageSize(Number(e.target.value))}
+              className="p-2.5 bg-slate-900 text-white border border-white/10 rounded-lg text-sm shadow-inner focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
         </div>
 
-        {/* Lista av posts */}
-        <ul className="space-y-10">
-          {filteredPosts.map((post, index) => (
-           <li
-  key={post.id}
-  className="relative p-6 bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300"
->
-  
-<div className="absolute bottom-4 right-4 
-                w-12 h-12 
-                sm:w-14 sm:h-14 
-                md:w-16 md:h-16 
-                lg:w-20 lg:h-20">
-  <img
-    src="/src/assets/mascot.png"
-    alt="CodeCraftsman mascot"
-    className="w-full h-full object-cover rounded-full border-2 border-cyan-500 shadow hover:scale-105 transition-transform"
-  />
-</div>
-              {index === Math.floor(filteredPosts.length / 2) && (
-                <div className="my-8">
-                  <AdsSection placement="middle" />
+        {/* Posts Grid (current page only) */}
+        {pageItems.length === 0 ? (
+          <p className="text-gray-400">No posts found.</p>
+        ) : (
+          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {pageItems.map((post) => (
+              <li key={post.id} className="group">
+                <div className="rounded-2xl p-[1px] bg-gradient-to-br from-cyan-500/30 via-white/10 to-transparent">
+                  <div className="relative rounded-2xl bg-gradient-to-b from-slate-900 to-black p-5 shadow-2xl h-full">
+                    {/* Image */}
+                    {post.images?.[0] && (
+                      <div className="mb-4 overflow-hidden rounded-xl ring-1 ring-white/10">
+                        <img
+                          src={post.images[0]}
+                          alt={post.title}
+                          className="w-full h-48 sm:h-56 object-cover group-hover:scale-[1.02] transition-transform duration-500"
+                        />
+                      </div>
+                    )}
+
+                    <h2 className="text-xl font-bold text-white mb-2 line-clamp-2">
+                      {post.title}
+                    </h2>
+
+                    <p className="text-gray-300 text-sm leading-relaxed mb-4">
+                      {getExcerpt(post.content)}
+                    </p>
+
+                    <div className="flex flex-wrap items-center gap-4 text-xs text-gray-400 mb-3">
+                      <span className="inline-flex items-center gap-1.5">
+                        <CalendarIcon className="h-4 w-4 text-cyan-400" />
+                        {formatDate(post.created_at)}
+                      </span>
+                      <span className="inline-flex items-center gap-1.5">
+                        <ChatBubbleLeftIcon className="h-4 w-4 text-cyan-400" />
+                        {getCommentCount(post.id)} comments
+                      </span>
+                    </div>
+
+                    {post.categories?.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <FolderIcon className="h-4 w-4 text-cyan-400" />
+                        <div className="flex flex-wrap gap-2">
+                          {post.categories.map((category, i) => (
+                            <Badge key={i}>{category}</Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {post.tags?.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-2 mb-4">
+                        <TagIcon className="h-4 w-4 text-cyan-400" />
+                        <div className="flex flex-wrap gap-2">
+                          {post.tags.map((tag, i) => (
+                            <Badge key={i}>#{tag}</Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <Link
+                      to={`/post/${post.slug}`}
+                      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-cyan-600 text-white hover:bg-cyan-500 transition-colors ring-1 ring-cyan-400/30"
+                      onClick={handleScrollToTop}
+                      aria-label={`Read more about ${post.title}`}
+                    >
+                      Read more <ChevronRightIcon className="h-5 w-5" />
+                    </Link>
+                  </div>
                 </div>
-              )}
+              </li>
+            ))}
+          </ul>
+        )}
 
-              <h2 className="text-2xl font-semibold text-cyan-600 mb-4">
-                {post.title}
-              </h2>
+        {/* Pagination controls */}
+        {totalItems > 0 && (
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="text-sm text-gray-400">
+              Showing <span className="text-white">{totalItems === 0 ? 0 : startIndex + 1}</span>
+              {"–"}
+              <span className="text-white">{endIndex}</span> of{" "}
+              <span className="text-white">{totalItems}</span>
+            </div>
 
-              <div className="rounded-xl overflow-hidden mb-6">
-                <img
-                  src={post.images[0]}
-                  alt={post.title}
-                  className="w-full h-[400px] object-cover transition-transform hover:scale-105 duration-500"
-                />
-              </div>
-
-              <p
-                className="text-gray-700 text-base mb-4"
-                dangerouslySetInnerHTML={{ __html: getExcerpt(post.content) }}
-              ></p>
-
-              <div className="flex items-center text-sm text-gray-500 mb-2">
-                <CalendarIcon className="h-5 w-5 text-cyan-600 mr-1" />
-                {new Date(post.created_at).toLocaleDateString()}
-              </div>
-
-              <div className="flex items-center space-x-6 text-gray-500 mb-4">
-                <div className="flex items-center gap-1">
-                  <ChatBubbleLeftIcon className="h-5 w-5 text-cyan-600" />
-                  {getCommentCount(post.id)} Comments
-                </div>
-              </div>
-
-              <div className="flex flex-wrap gap-2 mb-2">
-                <FolderIcon className="h-5 w-5 text-cyan-600" />
-                {post.categories.map((category, index) => (
-                  <span
-                    key={index}
-                    className="bg-cyan-500 text-white text-xs font-bold mr-2 mb-2 px-2.5 py-0.5 rounded"
-                  >
-                    {category}
-                  </span>
-                ))}
-              </div>
-
-              <div className="flex flex-wrap gap-2 mb-6">
-                <TagIcon className="h-5 w-5 text-cyan-600" />
-                {post.tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="bg-cyan-500 text-white text-xs font-bold mr-2 mb-2 px-2.5 py-0.5 rounded"
-                  >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-
-              <Link
-                to={`/post/${post.slug}`}
-                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-cyan-600 bg-white border border-cyan-600 rounded-lg shadow hover:bg-cyan-600 hover:text-white transition-all duration-300"
-                onClick={handleScrollToTop}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage <= 1}
+                className="px-3 py-2 rounded-lg bg-slate-900 text-white ring-1 ring-white/10 hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Previous page"
               >
-                Read more <ChevronRightIcon className="h-5 w-5" />
-              </Link>
-            </li>
-          ))}
-        </ul>
+                Prev
+              </button>
+              <span className="text-sm text-gray-300">
+                Page <span className="text-white">{currentPage}</span> of{" "}
+                <span className="text-white">{totalPages}</span>
+              </span>
+              <button
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage >= totalPages}
+                className="px-3 py-2 rounded-lg bg-slate-900 text-white ring-1 ring-white/10 hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Next page"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {modalVisible && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
-          <div className="bg-white p-8 rounded-2xl shadow-lg text-black w-1/3">
-            <h2 className="text-2xl mb-4">{modalMessage}</h2>
+        <div className="fixed inset-0 flex items-center justify-center bg-black/80 z-50">
+          <div className="bg-slate-900 text-white p-6 rounded-2xl shadow-2xl ring-1 ring-white/10 w-11/12 max-w-md">
+            <h2 className="text-xl font-semibold mb-3">{modalMessage}</h2>
             <button
-              onClick={closeModal}
-              className="bg-cyan-500 hover:bg-cyan-400 text-white px-4 py-2 rounded-full mt-4"
+              onClick={() => {
+                setModalVisible(false);
+              }}
+              className="mt-2 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-cyan-600 text-white hover:bg-cyan-500 transition-colors ring-1 ring-cyan-400/30"
             >
               Close
             </button>
@@ -296,3 +367,5 @@ const PostList: React.FC = () => {
 };
 
 export default PostList;
+
+

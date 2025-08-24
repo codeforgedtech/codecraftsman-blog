@@ -1,150 +1,170 @@
-import AdsSection from "../Ads/adsPage";
+import React from "react";
 import { FaGooglePlay, FaGithub, FaAndroid, FaDownload } from "react-icons/fa";
 
 type Platform = {
   name: string;
   href?: string;
   icon: JSX.Element;
-  classes: string;      // bg color classes
-  available: boolean;   // toggle this to true when live
+  classes: string; // bg color classes for active state
+  available: boolean; // toggle true when live
 };
 
-const AppPage = () => {
+const Badge = ({ children }: { children: React.ReactNode }) => (
+  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-cyan-500/10 text-cyan-300 ring-1 ring-cyan-400/20">
+    {children}
+  </span>
+);
+
+const Card = ({ children }: { children: React.ReactNode }) => (
+  <div className="rounded-2xl p-[1px] bg-gradient-to-br from-cyan-500/30 via-white/10 to-transparent">
+    <div className="rounded-2xl bg-gradient-to-b from-slate-900 to-black p-6 ring-1 ring-white/10 shadow-2xl">
+      {children}
+    </div>
+  </div>
+);
+
+// Button for each platform with available/coming-soon handling
+const PlatformButton = ({ p }: { p: Platform }) => {
+  const base =
+    "flex items-center justify-center gap-2 px-3 py-3 rounded-xl font-semibold shadow transition-transform ring-1";
+  const enabled = `${p.classes} hover:scale-[1.03] text-white ring-white/10`;
+  const disabled =
+    "bg-slate-800/70 text-gray-300 cursor-not-allowed ring-white/10";
+
+  const content = (
+    <>
+      {p.icon}
+      <span className="ml-1">{p.name}</span>
+      {!p.available && (
+        <span className="ml-2 text-[11px] px-2 py-0.5 rounded-full bg-black/30 text-gray-200 border border-white/10">
+          Coming soon
+        </span>
+      )}
+    </>
+  );
+
+  return p.available && p.href ? (
+    <a
+      href={p.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`${base} ${enabled}`}
+      aria-label={`${p.name} – open store page`}
+    >
+      {content}
+    </a>
+  ) : (
+    <div
+      role="button"
+      aria-disabled="true"
+      className={`${base} ${disabled}`}
+      title="Not available yet"
+    >
+      {content}
+    </div>
+  );
+};
+
+const AppPage: React.FC = () => {
   const platforms: Platform[] = [
     {
       name: "Google Play",
       href: "https://play.google.com/store/apps/developer?id=YourDeveloperName",
-      icon: <FaGooglePlay className="text-white w-6 h-6" />,
+      icon: <FaGooglePlay className="text-white w-5 h-5" />,
       classes: "bg-green-600",
-      available: false, // set to true when published
+      available: false,
     },
     {
       name: "F-Droid",
       href: "https://f-droid.org/en/packages/your.package.name/",
-      icon: <FaAndroid className="text-white w-6 h-6" />,
+      icon: <FaAndroid className="text-white w-5 h-5" />,
       classes: "bg-blue-700",
       available: false,
     },
     {
       name: "GitHub",
       href: "https://github.com/yourusername/yourapp/releases",
-      icon: <FaGithub className="text-white w-6 h-6" />,
+      icon: <FaGithub className="text-white w-5 h-5" />,
       classes: "bg-gray-800",
       available: false,
     },
     {
       name: "APKMirror",
       href: "https://www.apkmirror.com/uploads/?q=yourapp",
-      icon: <FaDownload className="text-white w-6 h-6" />,
+      icon: <FaDownload className="text-white w-5 h-5" />,
       classes: "bg-purple-700",
       available: false,
     },
   ];
 
-  // Reusable button that handles available/coming-soon states
-  const PlatformButton = ({ p }: { p: Platform }) => {
-    const base =
-      "flex items-center justify-center p-3 rounded-lg shadow transition-transform";
-    const enabled =
-      `${p.classes} hover:scale-105`;
-    const disabled =
-      "bg-gray-700/60 cursor-not-allowed ring-1 ring-gray-600/40";
-
-    const content = (
-      <>
-        {p.icon}
-        <span className="font-semibold text-white ml-2">{p.name}</span>
-        {!p.available && (
-          <span className="ml-3 text-[11px] px-2 py-0.5 rounded-full bg-black/40 text-gray-200 border border-white/10">
-            Coming soon
-          </span>
-        )}
-      </>
-    );
-
-    return p.available && p.href ? (
-      <a
-        href={p.href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={`${base} ${enabled}`}
-      >
-        {content}
-      </a>
-    ) : (
-      <div
-        role="button"
-        aria-disabled="true"
-        className={`${base} ${disabled}`}
-        title="Not available yet"
-      >
-        {content}
-      </div>
-    );
-  };
-
   return (
-    <div className="bg-black min-h-screen text-white font-sans px-4 py-8 flex items-start justify-start w-screen">
-      <div className="w-full max-w-6xl">
-        <div className="p-1 rounded-lg shadow-lg mp-2">
-          <AdsSection placement="post-top" />
-        </div>
-        <div className="w-full max-w-screen-sm sm:max-w-6xl px-4">
-          <h1 className="text-3xl sm:text-4xl font-bold text-left text-cyan-500 mb-8">
-            Apps
-          </h1>
+    <div className="bg-black min-h-screen text-white font-sans px-4 py-10 w-screen">
+      <div className="w-full max-w-6xl mx-auto">
+        {/* Header */}
+        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 bg-clip-text text-transparent mb-8">
+          Apps
+        </h1>
 
-          <div className="space-y-6">
-            {/* App Introduction */}
-            <section>
-              <h2 className="text-2xl sm:text-3xl font-semibold text-cyan-400 mb-4">
-                Behind all my apps
-              </h2>
-              <p className="text-gray-300 leading-relaxed">
-                I enjoy creating small Android apps mainly to make my own life easier. So far, I’ve developed two apps: Sticky Note, a straightforward and user-friendly note-taking app designed to keep my thoughts and ideas organized on the go, and Bangolf Protocol, an app that helps track scores and manage game details for miniature golf, making the whole experience smoother and more enjoyable.
-              </p>
-              <p className="text-gray-300 leading-relaxed mt-4">
-                Whether you're a developer, curious about new apps, or just here to explore something new — welcome to download my apps.
-              </p>
-            </section>
+        {/* Intro */}
+        <Card>
+          <h2 className="text-xl sm:text-2xl font-bold mb-3 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            Behind all my apps
+          </h2>
+          <p className="text-gray-300 leading-relaxed">
+            I enjoy crafting small Android apps that make everyday tasks easier. So far I’ve built
+            <span className="text-white font-medium"> Sticky Note</span> — a straightforward, on‑the‑go note app — and
+            <span className="text-white font-medium"> Bangolf Protocol</span> — a handy score tracker for miniature golf.
+          </p>
+          <p className="text-gray-300 leading-relaxed mt-3">
+            Whether you’re a developer or just curious, you’re welcome to follow along and download them when they’re ready.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Badge>Android</Badge>
+            <Badge>Open source (planned)</Badge>
+            <Badge>Privacy‑minded</Badge>
+          </div>
+        </Card>
 
-            {/* Where to Download */}
-            <section>
-              <h2 className="text-2xl sm:text-3xl font-semibold text-cyan-400 mb-2">
+        {/* Where to download */}
+        <div className="mt-8">
+          <Card>
+            <div className="flex items-center justify-between gap-4 mb-4">
+              <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
                 Where to download my apps
               </h2>
-              <p className="text-gray-300 leading-relaxed mb-4">
-                My apps are being published gradually. They’re not available on these platforms <span className="italic">yet</span>, but they’re on the way. Check back soon! 👇
-              </p>
+              <span className="text-xs text-gray-400 hidden sm:block">Publishing gradually</span>
+            </div>
+            <p className="text-gray-300 leading-relaxed mb-4">
+              These platforms are coming soon — check back for releases.
+            </p>
 
-              <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
-                {platforms.map((p) => (
-                  <PlatformButton key={p.name} p={p} />
-                ))}
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+              {platforms.map((p) => (
+                <PlatformButton key={p.name} p={p} />
+              ))}
+            </div>
 
-              {/* Optional legend */}
-              <div className="mt-3 text-xs text-gray-400">
-                <span className="inline-flex items-center">
-                  <span className="w-3 h-3 rounded-sm bg-gray-700/60 mr-2 border border-white/10"></span>
-                  Coming soon (not live yet)
-                </span>
-              </div>
-            </section>
+            {/* Legend */}
+            <div className="mt-4 text-xs text-gray-400">
+              <span className="inline-flex items-center">
+                <span className="w-3 h-3 rounded-sm bg-slate-800/70 mr-2 ring-1 ring-white/10"></span>
+                Coming soon (not live yet)
+              </span>
+            </div>
+          </Card>
+        </div>
 
-            {/* Join the Journey */}
-            <section>
-              <h2 className="text-2xl sm:text-3xl font-semibold text-cyan-400 mb-4">
-                Join the Journey
-              </h2>
-              <p className="text-gray-300 leading-relaxed">
-                I invite you to join me as we explore the world of technology
-                together. Whether you're looking to build your own app,
-                improve your coding skills, or stay updated on the latest in
-                mobile development, there's something here for you.
-              </p>
-            </section>
-          </div>
+        {/* Join the Journey */}
+        <div className="mt-8">
+          <Card>
+            <h2 className="text-xl sm:text-2xl font-bold mb-2 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+              Join the Journey
+            </h2>
+            <p className="text-gray-300 leading-relaxed">
+              Explore the world of mobile development with me — from idea to publish. Whether you’re
+              building your first app or refining your stack, there’s something here for you.
+            </p>
+          </Card>
         </div>
       </div>
     </div>

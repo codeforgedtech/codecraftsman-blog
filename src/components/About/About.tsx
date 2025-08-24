@@ -1,105 +1,167 @@
-import AdsSection from "../Ads/adsPage";
+import React from "react";
+import { Link } from "react-router-dom";
+import {
+  MapPinIcon,
+  RocketLaunchIcon,
+  BookOpenIcon,
+  CodeBracketIcon,
+} from "@heroicons/react/24/solid";
 
-const AboutPage = () => {
+const Badge = ({ children }: { children: React.ReactNode }) => (
+  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-cyan-500/10 text-cyan-300 ring-1 ring-cyan-400/20">
+    {children}
+  </span>
+);
+
+const Card = ({ children }: { children: React.ReactNode }) => (
+  <div className="rounded-2xl p-[1px] bg-gradient-to-br from-cyan-500/30 via-white/10 to-transparent">
+    <div className="rounded-2xl bg-gradient-to-b from-slate-900 to-black p-6 ring-1 ring-white/10 shadow-2xl">
+      {children}
+    </div>
+  </div>
+);
+
+const AboutPage: React.FC = () => {
   return (
-    <div className="bg-black min-h-screen text-white font-sans px-4 py-8 flex items-start justify-start w-screen">
-      <div className="w-full max-w-6xl">
-        <div className="p-1 rounded-lg shadow-lg mp-2">
-          <AdsSection placement="post-top" />
+    <div className="bg-black min-h-screen text-white font-sans px-4 py-10 w-screen">
+      <div className="w-full max-w-6xl mx-auto">
+        {/* Header */}
+        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 bg-clip-text text-transparent mb-8">
+          About Me
+        </h1>
+
+        {/* Hero / Intro */}
+        <Card>
+          <div className="grid grid-cols-1 md:grid-cols-[220px,1fr] gap-6 items-center">
+            <div className="mx-auto md:mx-0">
+              <div className="relative w-40 h-40 rounded-2xl overflow-hidden ring-1 ring-white/10">
+                <img
+                  src="/src/assets/mascot.png"
+                  alt="CodeCraftsMan mascot"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex flex-wrap items-center gap-2 text-sm text-gray-300">
+                <MapPinIcon className="h-5 w-5 text-cyan-400" />
+                <span>Hofors, Gästrikland (moved 2024) · from Ronneby, Blekinge</span>
+              </div>
+
+              <p className="mt-3 text-gray-200 leading-relaxed">
+                My name is <span className="font-semibold text-white">Christer Holm</span>. I manage several online
+                platforms and this blog is where I share projects, insights and lessons learned about
+                web development, technology and the journey of building things.
+              </p>
+
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Badge>Web dev & tinkerer</Badge>
+                <Badge>Writer & tutorial maker</Badge>
+                <Badge>AI‑assisted music experiments</Badge>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* What you can expect */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card>
+            <div className="flex items-start gap-3">
+              <div className="rounded-xl bg-cyan-500/10 p-2 ring-1 ring-cyan-400/20">
+                <RocketLaunchIcon className="h-6 w-6 text-cyan-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-white mb-1">Project Updates</h3>
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  Regular progress notes, challenges, and previews of what I’m building next.
+                </p>
+              </div>
+            </div>
+          </Card>
+
+          <Card>
+            <div className="flex items-start gap-3">
+              <div className="rounded-xl bg-cyan-500/10 p-2 ring-1 ring-cyan-400/20">
+                <BookOpenIcon className="h-6 w-6 text-cyan-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-white mb-1">Guides</h3>
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  Step‑by‑step walkthroughs for tools and workflows to help you ship faster.
+                </p>
+              </div>
+            </div>
+          </Card>
+
+          <Card>
+            <div className="flex items-start gap-3">
+              <div className="rounded-xl bg-cyan-500/10 p-2 ring-1 ring-cyan-400/20">
+                <CodeBracketIcon className="h-6 w-6 text-cyan-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-white mb-1">Coding Series</h3>
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  Bite‑sized lessons for beginners and practitioners—practical, clear and hands‑on.
+                </p>
+              </div>
+            </div>
+          </Card>
         </div>
-        <div className="w-full max-w-screen-sm sm:max-w-6xl px-4">
-          <h1 className="text-3xl sm:text-4xl font-bold text-left text-cyan-500 mb-8">
-            About Me
-          </h1>
 
-          <div className="space-y-6">
-            {/* Introduction */}
-            <section>
-              <h2 className="text-2xl sm:text-3xl font-semibold text-cyan-400 mb-4">
-                Introduction
-              </h2>
-              <p className="text-gray-300 leading-relaxed">
-                My name is Christer Holm, and I originally hail from the
-                charming town of Ronneby in Blekinge. In 2024, I made a
-                significant move to Hofors in Gästrikland, a change that has
-                invigorated my passion for technology and web development.
-                Managing several online platforms is a big part of what I do,
-                but this blog will serve as my primary outlet for sharing my
-                projects, insights, and experiences with a broader audience.
-              </p>
-            </section>
+        {/* Skills */}
+        <Card>
+          <h2 className="text-xl sm:text-2xl font-bold mb-3 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            Skills & Focus
+          </h2>
+          <p className="text-gray-300 leading-relaxed">
+            Follow along to learn how to plan, build and run your own website—from fundamentals to more
+            advanced techniques.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Badge>HTML</Badge>
+            <Badge>CSS</Badge>
+            <Badge>JavaScript</Badge>
+            <Badge>TypeScript</Badge>
+            <Badge>React</Badge>
+            <Badge>Tailwind</Badge>
+            <Badge>Supabase</Badge>
+            <Badge>Git</Badge>
+            <Badge>Deployment</Badge>
+          </div>
+        </Card>
 
-            {/* What You Can Expect */}
-            <section>
-              <h2 className="text-2xl sm:text-3xl font-semibold text-cyan-400 mb-4">
-                What You Can Expect
-              </h2>
-              <ul className="space-y-6">
-                <li className="p-4 bg-gradient-to-r from-gray-800 via-gray-900 to-black rounded-xl shadow-lg">
-                  <h3 className="text-lg font-semibold text-cyan-300 mb-2">
-                    Project Updates
-                  </h3>
-                  <p className="text-gray-300 leading-relaxed">
-                    I will share regular updates on my current work. This
-                    includes detailed progress reports on ongoing projects,
-                    insights into the challenges I encounter, and previews of
-                    future plans.
-                  </p>
-                </li>
-                <li className="p-4 bg-gradient-to-r from-gray-800 via-gray-900 to-black rounded-xl shadow-lg">
-                  <h3 className="text-lg font-semibold text-cyan-300 mb-2">
-                    Guides
-                  </h3>
-                  <p className="text-gray-300 leading-relaxed">
-                    Detailed guides on a range of technical topics and tools
-                    designed to help you understand and utilize different
-                    technologies effectively.
-                  </p>
-                </li>
-                <li className="p-4 bg-gradient-to-r from-gray-800 via-gray-900 to-black rounded-xl shadow-lg">
-                  <h3 className="text-lg font-semibold text-cyan-300 mb-2">
-                    Coding Series
-                  </h3>
-                  <p className="text-gray-300 leading-relaxed">
-                    A series of coding lessons, breaking down basics into
-                    digestible concepts and offering practical and
-                    easy-to-follow steps for beginners and seasoned developers
-                    alike.
-                  </p>
-                </li>
-              </ul>
-            </section>
-
-            {/* Skills and Knowledge */}
-            <section>
-              <h2 className="text-2xl sm:text-3xl font-semibold text-cyan-400 mb-4">
-                Skills and Knowledge
-              </h2>
-              <p className="text-gray-300 leading-relaxed">
-                By following this blog, you will acquire the skills and
-                knowledge needed to start and manage your own website
-                independently, from fundamental coding principles to more
-                advanced techniques.
-              </p>
-            </section>
-
-            {/* Join the Journey */}
-            <section>
-              <h2 className="text-2xl sm:text-3xl font-semibold text-cyan-400 mb-4">
+        {/* Join the journey CTA */}
+        <Card>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-bold mb-1 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
                 Join the Journey
               </h2>
-              <p className="text-gray-300 leading-relaxed">
-                I invite you to join me as we explore the world of technology
-                together. Whether you're looking to build your own website,
-                improve your coding skills, or stay updated on the latest in
-                technology, there's something here for you.
+              <p className="text-gray-300">
+                Whether you’re starting your first site or levelling up your stack—there’s something here for you.
               </p>
-            </section>
+            </div>
+            <div className="flex gap-3">
+              <Link
+                to="/posts"
+                className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg bg-cyan-600 text-white hover:bg-cyan-500 transition-colors ring-1 ring-cyan-400/30"
+              >
+                Browse Posts
+              </Link>
+              <Link
+                to="/contact"
+                className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg bg-slate-800 text-white hover:bg-slate-700 ring-1 ring-white/10"
+              >
+                Get in Touch
+              </Link>
+            </div>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );
 };
 
 export default AboutPage;
+
