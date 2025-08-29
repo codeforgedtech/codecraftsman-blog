@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useParams, Link } from "react-router-dom";
 import { supabase } from "../../supabaseClient";
 import DOMPurify from "dompurify";
-
+import { useParams, Link } from "react-router-dom";
 import {
   CalendarIcon,
   FolderIcon,
@@ -78,12 +77,8 @@ const SinglePost: React.FC = () => {
   const [num2, setNum2] = useState<number>(Math.floor(Math.random() * 10) + 1);
   const [captchaAnswer, setCaptchaAnswer] = useState("");
 
-  const [replyNum1, setReplyNum1] = useState<number>(
-    Math.floor(Math.random() * 10) + 1
-  );
-  const [replyNum2, setReplyNum2] = useState<number>(
-    Math.floor(Math.random() * 10) + 1
-  );
+  const [replyNum1, setReplyNum1] = useState<number>(Math.floor(Math.random() * 10) + 1);
+  const [replyNum2, setReplyNum2] = useState<number>(Math.floor(Math.random() * 10) + 1);
   const [replyCaptchaAnswer, setReplyCaptchaAnswer] = useState("");
 
   // Helpers
@@ -105,7 +100,7 @@ const SinglePost: React.FC = () => {
 
   // Data
   const fetchUsers = async () => {
-    const userId = "2db5aa97-71a0-43d4-a29d-b6a8670d00e9"; // TODO: sätt ditt user_id
+    const userId = "2db5aa97-71a0-43d4-a29d-b6a8670d00e9"; // TODO: byt till ditt user_id
     const { data: userData, error: userError } = await supabase
       .from("users")
       .select("*")
@@ -132,6 +127,7 @@ const SinglePost: React.FC = () => {
     setLikesCount(likesData?.length || 0);
   };
 
+  const [relatedPosts, setRelatedPosts] = useState<Post[]>([]);
   const fetchRelatedPosts = async (categories: string[] = []) => {
     try {
       const catQuery = `{${categories.join(",")}}`;
@@ -146,8 +142,6 @@ const SinglePost: React.FC = () => {
       console.error(e);
     }
   };
-
-  const [relatedPosts, setRelatedPosts] = useState<Post[]>([]);
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -278,82 +272,107 @@ const SinglePost: React.FC = () => {
   }
 
   return (
-    <div className="bg-black min-h-screen text-white font-sans px-4 py-10 w-screen">
-      <div className="mx-auto w-full max-w-6xl">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 bg-clip-text text-transparent">
+    <div className="bg-black min-h-screen text-white font-sans px-2 sm:px-4 lg:px-6 py-8 w-full overflow-x-hidden">
+      <div className="w-full">
+        {/* Header (fix för avklippta g/j) */}
+        <div className="mb-6 sm:mb-8 overflow-visible">
+          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight sm:leading-[1.15] pb-1
+                         bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 bg-clip-text text-transparent">
             {post.title}
           </h1>
         </div>
 
-        {/* Post Card (glass + gradient border) */}
+        {/* Post Card (tvåspalt som SingleReview) */}
         <div className="rounded-2xl p-[1px] bg-gradient-to-br from-cyan-500/30 via-white/10 to-transparent">
           <div className="rounded-2xl bg-gradient-to-b from-slate-900 to-black p-4 sm:p-8 shadow-2xl">
-            {/* Featured Image */}
-            {post.images?.[0] && (
-              <div className="mb-6 overflow-hidden rounded-xl ring-1 ring-white/10">
-                <img
-                  src={post.images[0]}
-                  alt={post.title}
-                  className="w-full h-auto sm:h-[480px] object-cover hover:scale-[1.01] transition-transform duration-500"
+            {/* ÄNDRA ORDNINGEN MED order-utilities */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              {/* Högerspalt (bild + details) först på mobil: order-1, höger på desktop: lg:order-2 */}
+              <aside className="order-1 lg:order-2 lg:col-span-5 space-y-4 lg:sticky lg:top-4">
+                {/* Bild */}
+                {post.images?.[0] && (
+                  <div className="overflow-hidden rounded-xl ring-1 ring-white/10">
+                    <div className="relative w-full aspect-[16/9]">
+                      <img
+                        src={post.images[0]}
+                        alt={post.title}
+                        className="absolute inset-0 w-full h-full object-cover hover:scale-[1.01] transition-transform duration-500"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Details-kort: Categories + Tags */}
+                <div className="rounded-xl bg-slate-900/80 ring-1 ring-white/10 p-4 sm:p-5">
+                  <h3 className="text-base font-semibold text-white mb-3">Details</h3>
+
+                  {/* Categories */}
+                  {post.categories?.length > 0 && (
+                    <div className="mb-3">
+                      <div className="flex items-center gap-2 mb-2 text-sm text-gray-300">
+                        <FolderIcon className="h-4 w-4 text-cyan-400" />
+                        <span>Categories</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {post.categories.map((c, i) => (
+                          <Badge key={i}>{c}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Tags */}
+                  {post.tags?.length > 0 && (
+                    <div className="mt-3">
+                      <div className="flex items-center gap-2 mb-2 text-sm text-gray-300">
+                        <TagIcon className="h-4 w-4 text-cyan-400" />
+                        <span>Tags</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {post.tags.map((t, i) => (
+                          <Badge key={i}>#{t}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </aside>
+
+              {/* Vänsterspalt (innehåll) efter på mobil: order-2, vänster på desktop: lg:order-1 */}
+              <div className="order-2 lg:order-1 lg:col-span-7">
+                {/* Meta */}
+                <div className="flex flex-wrap items-center gap-3 text-sm text-gray-300/90 mb-4">
+                  <div className="inline-flex items-center gap-2">
+                    <CalendarIcon className="h-5 w-5 text-cyan-400" />
+                    <span>{formatDate(post.created_at)}</span>
+                  </div>
+
+                  <span className="h-4 w-px bg-white/10" />
+
+                  <div className="inline-flex items-center gap-2">
+                    <UserIcon className="h-5 w-5 text-cyan-400" />
+                    <span>{users[0]?.full_name ?? "Author"}</span>
+                  </div>
+
+                  {typeof post.views === "number" && (
+                    <>
+                      <span className="h-4 w-px bg-white/10" />
+                      <span className="text-gray-400">{post.views} views</span>
+                    </>
+                  )}
+                </div>
+
+                {/* Content */}
+                <div
+                  className="text-gray-200 leading-relaxed space-y-4 break-words"
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(post.content),
+                  }}
                 />
               </div>
-            )}
-
-            {/* Meta */}
-            <div className="flex flex-wrap items-center gap-3 text-sm text-gray-300/90">
-              <div className="inline-flex items-center gap-2">
-                <CalendarIcon className="h-5 w-5 text-cyan-400" />
-                <span>{formatDate(post.created_at)}</span>
-              </div>
-
-              <span className="h-4 w-px bg-white/10" />
-
-              <div className="inline-flex items-center gap-2">
-                <UserIcon className="h-5 w-5 text-cyan-400" />
-                <span>{users[0]?.full_name ?? "Author"}</span>
-              </div>
-
-              {post.views !== undefined && (
-                <>
-                  <span className="h-4 w-px bg-white/10" />
-                  <span className="text-gray-400">{post.views} views</span>
-                </>
-              )}
             </div>
-
-            {/* Categories */}
-            {post.categories?.length > 0 && (
-              <div className="mt-4 flex flex-wrap gap-2">
-                <FolderIcon className="h-4 w-4 text-cyan-400 mt-0.5" />
-                <div className="flex flex-wrap gap-2">
-                  {post.categories.map((c, i) => (
-                    <Badge key={i}>{c}</Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Tags */}
-            {post.tags?.length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-2">
-                <TagIcon className="h-4 w-4 text-cyan-400 mt-0.5" />
-                <div className="flex flex-wrap gap-2">
-                  {post.tags.map((t, i) => (
-                    <Badge key={i}>#{t}</Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Content */}
-            <div
-              className="mt-6 text-gray-200 leading-relaxed space-y-4 break-words"
-              dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(post.content),
-              }}
-            />
           </div>
         </div>
 
@@ -424,11 +443,14 @@ const SinglePost: React.FC = () => {
                           onSubmit={(e) => handleReplySubmit(e, comment.id)}
                           className="rounded-lg bg-slate-900/70 ring-1 ring-white/10 p-4"
                         >
+                          <label htmlFor={`reply-${comment.id}`} className="sr-only">Reply</label>
                           <textarea
+                            id={`reply-${comment.id}`}
                             className="w-full p-2.5 mt-1 bg-slate-800 text-white placeholder-gray-400 rounded-md"
                             placeholder="Write your reply here"
                             value={newReply}
                             onChange={(e) => setNewReply(e.target.value)}
+                            required
                           />
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
                             <input
@@ -437,6 +459,7 @@ const SinglePost: React.FC = () => {
                               placeholder="Your name"
                               value={replyName}
                               onChange={(e) => setReplyName(e.target.value)}
+                              required
                             />
                             <input
                               type="email"
@@ -444,6 +467,7 @@ const SinglePost: React.FC = () => {
                               placeholder="Your email"
                               value={replyEmail}
                               onChange={(e) => setReplyEmail(e.target.value)}
+                              required
                             />
                             <div>
                               <label className="text-gray-300 text-sm">
@@ -455,6 +479,7 @@ const SinglePost: React.FC = () => {
                                 placeholder="Enter the sum"
                                 value={replyCaptchaAnswer}
                                 onChange={(e) => setReplyCaptchaAnswer(e.target.value)}
+                                required
                               />
                             </div>
                           </div>
@@ -488,11 +513,14 @@ const SinglePost: React.FC = () => {
             {errorMessage && (
               <div className="mb-4 text-sm text-red-400" aria-live="polite">{errorMessage}</div>
             )}
+            <label htmlFor="comment" className="sr-only">Comment</label>
             <textarea
+              id="comment"
               className="w-full p-3 bg-slate-800 text-white placeholder-gray-400 rounded-md"
               placeholder="Write your comment here"
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
+              required
             />
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
               <input
@@ -501,6 +529,7 @@ const SinglePost: React.FC = () => {
                 placeholder="Your name"
                 value={commentName}
                 onChange={(e) => setCommentName(e.target.value)}
+                required
               />
               <input
                 type="email"
@@ -508,6 +537,7 @@ const SinglePost: React.FC = () => {
                 placeholder="Your email"
                 value={commentEmail}
                 onChange={(e) => setCommentEmail(e.target.value)}
+                required
               />
               <div>
                 <label className="text-gray-300 text-sm">
@@ -519,6 +549,7 @@ const SinglePost: React.FC = () => {
                   placeholder="Enter the sum"
                   value={captchaAnswer}
                   onChange={(e) => setCaptchaAnswer(e.target.value)}
+                  required
                 />
               </div>
             </div>
@@ -546,11 +577,14 @@ const SinglePost: React.FC = () => {
                 >
                   <div className="relative">
                     {rp.images?.[0] && (
-                      <img
-                        src={rp.images[0]}
-                        alt={rp.title}
-                        className="h-44 w-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
-                      />
+                      <div className="relative w-full aspect-[16/9] overflow-hidden">
+                        <img
+                          src={rp.images[0]}
+                          alt={rp.title}
+                          className="absolute inset-0 h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
+                          loading="lazy"
+                        />
+                      </div>
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                   </div>
@@ -573,4 +607,6 @@ const SinglePost: React.FC = () => {
 };
 
 export default SinglePost;
+             
+
 

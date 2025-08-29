@@ -60,11 +60,7 @@ const Badge = ({ children }: { children: React.ReactNode }) => (
 );
 
 const formatDate = (iso: string) =>
-  new Date(iso).toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+  new Date(iso).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 
 const getExcerpt = (html: string, maxLen = 160) => {
   const text = html.replace(/<[^>]+>/g, "").trim();
@@ -84,17 +80,14 @@ const ArchivePage: React.FC = () => {
       const { data } = await supabase.from("posts").select("*");
       setPosts(data || []);
     };
-
     const fetchReviews = async () => {
       const { data } = await supabase.from("reviews").select("*");
       setReviews(data || []);
     };
-
     fetchPosts();
     fetchReviews();
   }, []);
 
-  // reset pagination on tab/sort change
   useEffect(() => {
     setCurrentPage(1);
   }, [activeTab, sortOption, itemsPerPage]);
@@ -103,7 +96,9 @@ const ArchivePage: React.FC = () => {
     const list = activeTab === "posts" ? [...posts] : [...reviews];
     if (sortOption === "date") {
       return list.sort(
-        (a, b) => new Date((b as Post | Review).created_at).getTime() - new Date((a as Post | Review).created_at).getTime()
+        (a, b) =>
+          new Date((b as Post | Review).created_at).getTime() -
+          new Date((a as Post | Review).created_at).getTime()
       );
     }
     if (activeTab === "reviews" && sortOption === "rating") {
@@ -122,19 +117,18 @@ const ArchivePage: React.FC = () => {
 
   const paginatePrev = () => {
     setCurrentPage((p) => Math.max(1, p - 1));
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
-
   const paginateNext = () => {
     setCurrentPage((p) => Math.min(totalPages, p + 1));
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
-    <div className="bg-black min-h-screen text-white font-sans px-4 py-10 w-screen">
-      <div className="w-full max-w-6xl mx-auto">
+    <div className="bg-black min-h-screen text-white font-sans px-2 sm:px-4 lg:px-6 py-8 w-full overflow-x-hidden">
+      <div className="w-full">
         {/* Header */}
-        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 bg-clip-text text-transparent mb-6">
+        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight sm:leading-[1.15] pb-1 bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 bg-clip-text text-transparent mb-6">
           {activeTab === "posts" ? "Posts Archive" : "Reviews Archive"}
         </h1>
 
@@ -143,9 +137,7 @@ const ArchivePage: React.FC = () => {
           <button
             onClick={() => setActiveTab("posts")}
             className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
-              activeTab === "posts"
-                ? "bg-cyan-600 text-white"
-                : "text-gray-300 hover:text-white"
+              activeTab === "posts" ? "bg-cyan-600 text-white" : "text-gray-300 hover:text-white"
             }`}
             aria-pressed={activeTab === "posts"}
           >
@@ -154,9 +146,7 @@ const ArchivePage: React.FC = () => {
           <button
             onClick={() => setActiveTab("reviews")}
             className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
-              activeTab === "reviews"
-                ? "bg-cyan-600 text-white"
-                : "text-gray-300 hover:text-white"
+              activeTab === "reviews" ? "bg-cyan-600 text-white" : "text-gray-300 hover:text-white"
             }`}
             aria-pressed={activeTab === "reviews"}
           >
@@ -167,9 +157,7 @@ const ArchivePage: React.FC = () => {
         {/* Toolbar */}
         <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-8">
           <div className="flex items-center gap-2">
-            <label htmlFor="sort-options" className="text-sm text-gray-300">
-              Sort by
-            </label>
+            <label htmlFor="sort-options" className="text-sm text-gray-300">Sort by</label>
             <select
               id="sort-options"
               onChange={(e) => setSortOption(e.target.value)}
@@ -182,9 +170,7 @@ const ArchivePage: React.FC = () => {
             </select>
           </div>
           <div className="flex items-center gap-2">
-            <label htmlFor="ipp" className="text-sm text-gray-300">
-              Per page
-            </label>
+            <label htmlFor="ipp" className="text-sm text-gray-300">Per page</label>
             <select
               id="ipp"
               value={itemsPerPage}
@@ -199,28 +185,36 @@ const ArchivePage: React.FC = () => {
         </div>
 
         {/* Grid */}
-        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <ul className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
           {currentItems.map((item: Post | Review) => (
             <li key={item.id} className="group">
               <div className="rounded-2xl p-[1px] bg-gradient-to-br from-cyan-500/30 via-white/10 to-transparent">
-                <div className="relative rounded-2xl bg-gradient-to-b from-slate-900 to-black p-5 shadow-2xl h-full">
-                  {/* Image */}
+                <div className="relative rounded-2xl bg-gradient-to-b from-slate-900 to-black p-5 shadow-2xl h-full flex flex-col">
+                  {/* Image with aspect ratio */}
                   {"images" in item && item.images?.[0] && (
                     <div className="mb-4 overflow-hidden rounded-xl ring-1 ring-white/10">
-                      <img
-                        src={item.images[0]}
-                        alt={item.title}
-                        className="w-full h-44 sm:h-52 object-cover group-hover:scale-[1.02] transition-transform duration-500"
-                      />
+                      <div className="relative w-full aspect-[16/9]">
+                        <img
+                          src={item.images[0]}
+                          alt={item.title}
+                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </div>
                     </div>
                   )}
                   {"imageUrl" in item && item.imageUrl && (
                     <div className="mb-4 overflow-hidden rounded-xl ring-1 ring-white/10">
-                      <img
-                        src={item.imageUrl}
-                        alt={item.title}
-                        className="w-full h-44 sm:h-52 object-cover group-hover:scale-[1.02] transition-transform duration-500"
-                      />
+                      <div className="relative w-full aspect-[16/9]">
+                        <img
+                          src={item.imageUrl}
+                          alt={item.title}
+                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </div>
                     </div>
                   )}
 
@@ -231,7 +225,7 @@ const ArchivePage: React.FC = () => {
 
                   {/* Excerpt */}
                   <p className="text-gray-300 text-sm leading-relaxed mb-4">
-                    {getExcerpt(activeTab === "posts" ? (item as Post).content : (item as Review).content || "")}
+                    {getExcerpt("content" in item ? item.content : (item as Review).content || "")}
                   </p>
 
                   {/* Meta */}
@@ -260,11 +254,11 @@ const ArchivePage: React.FC = () => {
                   )}
 
                   {/* Tags for posts */}
-                  {activeTab === "posts" && "tags" in item && item.tags?.length > 0 && (
+                  {"tags" in item && (item as Post).tags?.length > 0 && activeTab === "posts" && (
                     <div className="flex flex-wrap items-center gap-2 mb-2">
                       <TagIcon className="h-4 w-4 text-cyan-400" />
                       <div className="flex flex-wrap gap-2">
-                        {item.tags.map((tag, i) => (
+                        {(item as Post).tags.map((tag, i) => (
                           <Badge key={i}>#{tag}</Badge>
                         ))}
                       </div>
@@ -286,8 +280,8 @@ const ArchivePage: React.FC = () => {
                   {/* CTA */}
                   <Link
                     to={`/${activeTab === "posts" ? "post" : "review"}/${item.slug}`}
-                    className="mt-3 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-cyan-600 text-white hover:bg-cyan-500 transition-colors ring-1 ring-cyan-400/30"
-                    onClick={() => window.scrollTo(0, 0)}
+                    className="mt-3 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-cyan-600 text-white hover:bg-cyan-500 transition-colors ring-1 ring-cyan-400/30 w-full sm:w-auto justify-center"
+                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                     aria-label={`Read more about ${item.title}`}
                   >
                     Read more <ChevronRightIcon className="h-5 w-5" />
@@ -326,4 +320,5 @@ const ArchivePage: React.FC = () => {
 };
 
 export default ArchivePage;
+
 

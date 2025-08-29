@@ -32,9 +32,7 @@ const RatingStars: React.FC<{ rating: number }> = ({ rating }) => {
       {Array.from({ length: maxStars }).map((_, i) => (
         <StarIcon
           key={i}
-          className={
-            "h-5 w-5 " + (i < rating ? "text-yellow-400" : "text-white/20")
-          }
+          className={"h-5 w-5 " + (i < rating ? "text-yellow-400" : "text-white/20")}
         />
       ))}
     </div>
@@ -103,8 +101,8 @@ const ReviewList: React.FC = () => {
   );
 
   return (
-    <div className="bg-black min-h-screen text-white font-sans px-4 py-10 w-screen">
-      <div className="w-full max-w-6xl mx-auto">
+    <div className="bg-black min-h-screen text-white font-sans px-2 sm:px-4 lg:px-6 py-8 w-full overflow-x-hidden">
+      <div className="w-full">
         {/* Header */}
         <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 bg-clip-text text-transparent mb-8">
           Reviews
@@ -133,25 +131,29 @@ const ReviewList: React.FC = () => {
         </div>
 
         {/* Reviews Grid */}
-        <ul className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <ul className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
           {filteredReviews.map((review) => (
             <li key={review.id} className="group">
               {/* Gradient border card */}
               <div className="rounded-2xl p-[1px] bg-gradient-to-br from-cyan-500/30 via-white/10 to-transparent">
-                <div className="relative rounded-2xl bg-gradient-to-b from-slate-900 to-black p-5 shadow-2xl h-full">
-                  {/* Image */}
+                <div className="relative rounded-2xl bg-gradient-to-b from-slate-900 to-black p-5 shadow-2xl h-full flex flex-col">
+                  {/* Image with fixed aspect ratio */}
                   {review.imageUrl && (
                     <div className="mb-4 overflow-hidden rounded-xl ring-1 ring-white/10">
-                      <img
-                        src={review.imageUrl}
-                        alt={review.title}
-                        className="w-full h-44 sm:h-52 object-cover group-hover:scale-[1.02] transition-transform duration-500"
-                      />
+                      <div className="relative w-full aspect-[16/9]">
+                        <img
+                          src={review.imageUrl}
+                          alt={review.title}
+                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </div>
                     </div>
                   )}
 
                   {/* Title */}
-                  <h2 className="text-xl font-bold text-white mb-2 line-clamp-2">
+                  <h2 className="text-lg sm:text-xl font-bold text-white mb-2 line-clamp-2">
                     {review.title}
                   </h2>
 
@@ -179,7 +181,7 @@ const ReviewList: React.FC = () => {
                     <Spec label="Desktop Env" value={review.desktop_environment?.join(", ") || "—"} />
                   </div>
 
-                  {/* Footer: date + rating + CTA */}
+                  {/* Footer: date + rating */}
                   <div className="mt-auto flex items-center justify-between gap-3">
                     <div className="inline-flex items-center gap-2 text-xs text-gray-400">
                       <CalendarIcon className="h-4 w-4 text-cyan-400" />
@@ -190,7 +192,7 @@ const ReviewList: React.FC = () => {
 
                   <Link
                     to={`/review/${review.slug}`}
-                    className="mt-4 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-cyan-600 text-white hover:bg-cyan-500 transition-colors ring-1 ring-cyan-400/30"
+                    className="mt-4 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-cyan-600 text-white hover:bg-cyan-500 transition-colors ring-1 ring-cyan-400/30 w-full sm:w-auto justify-center"
                     aria-label={`Read more about ${review.title}`}
                   >
                     Read more <ChevronRightIcon className="h-5 w-5" />
@@ -206,4 +208,5 @@ const ReviewList: React.FC = () => {
 };
 
 export default ReviewList;
+
 

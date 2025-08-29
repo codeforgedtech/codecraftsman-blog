@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaOpencart, FaTrash } from "react-icons/fa6";
+
+import { FaTrash ,FaShoppingBasket} from "react-icons/fa";
 
 interface Product {
   id: number;
@@ -23,8 +24,10 @@ interface CartItem extends Product {
   quantity: number; // number of units
 }
 
-const Badge: React.FC<{ children: React.ReactNode; tone?: "info" | "warning" | "neutral" }>
-= ({ children, tone = "neutral" }) => {
+const Badge: React.FC<{ children: React.ReactNode; tone?: "info" | "warning" | "neutral" }> = ({
+  children,
+  tone = "neutral",
+}) => {
   const tones = {
     info: "bg-cyan-500/10 text-cyan-300 ring-cyan-400/20",
     warning: "bg-yellow-500/10 text-yellow-200 ring-yellow-400/30",
@@ -36,6 +39,8 @@ const Badge: React.FC<{ children: React.ReactNode; tone?: "info" | "warning" | "
     </span>
   );
 };
+
+
 
 const StorePage: React.FC = () => {
   // 🔒 Toggle this to enable/disable purchasing site-wide
@@ -62,9 +67,7 @@ const StorePage: React.FC = () => {
       .reduce((sum, item) => sum + item.quantity, 0);
 
     if (totalInCartForThisProduct + quantity > stockLimit) {
-      alert(
-        `Only ${stockLimit} ${selectedProduct.unitLabel ?? "pcs"} in stock for ${selectedProduct.name}.`
-      );
+      alert(`Only ${stockLimit} ${selectedProduct.unitLabel ?? "pcs"} in stock for ${selectedProduct.name}.`);
       return;
     }
 
@@ -78,19 +81,14 @@ const StorePage: React.FC = () => {
     setCartItems((prev) => {
       const existingIndex = prev.findIndex(
         (item) =>
-          item.id === newItem.id &&
-          item.size === newItem.size &&
-          item.selectedColor === newItem.selectedColor
+          item.id === newItem.id && item.size === newItem.size && item.selectedColor === newItem.selectedColor
       );
 
       if (existingIndex !== -1) {
         const updated = [...prev];
         const nextQty = updated[existingIndex].quantity + quantity;
-        const stockLimit = selectedProduct.stock ?? Infinity;
         if (nextQty > stockLimit) {
-          alert(
-            `Only ${stockLimit} ${selectedProduct.unitLabel ?? "pcs"} in stock for ${selectedProduct.name}.`
-          );
+          alert(`Only ${stockLimit} ${selectedProduct.unitLabel ?? "pcs"} in stock for ${selectedProduct.name}.`);
           return prev;
         }
         updated[existingIndex].quantity = nextQty;
@@ -131,8 +129,29 @@ const StorePage: React.FC = () => {
       name: "Cap opener",
       price: "2,00 €",
       image: "https://codecraftsman.se/store/kaspyl.jpg",
-      description:
-        "High-quality CodeCraftsMan Cap opener. Only 3 items available in stock.",
+      description: "High-quality CodeCraftsMan Cap opener. Only 3 items available in stock.",
+      category: "Accessories",
+      stock: 3,
+      unitLabel: "pcs",
+      unitMultiplier: 1,
+    },
+     {
+      id: 3,
+      name: "Cap opener",
+      price: "2,00 €",
+      image: "https://codecraftsman.se/store/kaspyl.jpg",
+      description: "High-quality CodeCraftsMan Cap opener. Only 3 items available in stock.",
+      category: "Accessories",
+      stock: 3,
+      unitLabel: "pcs",
+      unitMultiplier: 1,
+    },
+      {
+      id: 4,
+      name: "Cap opener",
+      price: "2,00 €",
+      image: "https://codecraftsman.se/store/kaspyl.jpg",
+      description: "High-quality CodeCraftsMan Cap opener. Only 3 items available in stock.",
       category: "Accessories",
       stock: 3,
       unitLabel: "pcs",
@@ -142,10 +161,7 @@ const StorePage: React.FC = () => {
 
   const categories = ["All", ...new Set(products.map((product) => product.category))];
 
-  const filteredProducts =
-    selectedCategory === "All"
-      ? products
-      : products.filter((product) => product.category === selectedCategory);
+  const filteredProducts = selectedCategory === "All" ? products : products.filter((p) => p.category === selectedCategory);
 
   const openModal = (product: Product) => {
     setSelectedProduct(product);
@@ -169,31 +185,32 @@ const StorePage: React.FC = () => {
   };
 
   return (
-    <div className="bg-black min-h-screen text-white font-sans px-4 py-10 w-screen">
-      <div className="w-full max-w-6xl mx-auto">
+    <div className="bg-black min-h-screen text-white font-sans px-2 sm:px-4 lg:px-6 py-8 w-full overflow-x-hidden">
+      <div className="w-full">
         {/* Header + Cart */}
-<div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-  <h1 className="self-start text-left text-3xl sm:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 bg-clip-text text-transparent">
-    Store
-  </h1>
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="self-start text-left text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight sm:leading-[1.15] pb-1 bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 bg-clip-text text-transparent">
+            Store
+          </h1>
 
-  <button
-    onClick={() => setIsCartOpen(true)}
-    className="relative inline-flex items-center justify-center w-11 h-11 rounded-full bg-cyan-600 text-white hover:bg-cyan-500 transition-colors ring-1 ring-cyan-400/30 disabled:opacity-60 disabled:cursor-not-allowed self-center sm:self-auto sm:ml-auto"
-    disabled={COMING_SOON}
-    title={COMING_SOON ? 'Cart preview only (coming soon)' : 'Open cart'}
-    aria-label="Open cart"
-  >
-  <button className="text-white bg-cyan-600 ...">
-  <FaOpencart size={25} />
-</button>
-    {cartItems.length > 0 && (
-      <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full ring-1 ring-white/20">
-        {cartItems.length}
-      </span>
-    )}
-  </button>
+          <button
+  onClick={() => setIsCartOpen(true)}
+  className="relative inline-flex items-center justify-center w-11 h-11 rounded-full bg-cyan-600 text-white hover:bg-cyan-500 transition-colors ring-1 ring-cyan-400/30 disabled:opacity-60 disabled:cursor-not-allowed self-center sm:self-auto sm:ml-auto"
+  disabled={COMING_SOON}
+  title={COMING_SOON ? "Cart preview only (coming soon)" : "Open cart"}
+  aria-label="Open cart"
+>
+  
+ <div className="text-white">
+  <FaShoppingBasket size={20} />
 </div>
+  {cartItems.length > 0 && (
+    <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full ring-1 ring-white/20">
+      {cartItems.length}
+    </span>
+  )}
+</button>
+        </div>
 
         {/* Coming soon banner */}
         {COMING_SOON && (
@@ -229,18 +246,32 @@ const StorePage: React.FC = () => {
           </select>
         </div>
 
-        {/* Product grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Product grid: auto-fit för snygg responsivitet */}
+      <div
+  className="grid gap-6"
+  style={{
+    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", // täcker hela skärmen
+  }}
+>
           {filteredProducts.map((product) => (
-            <div key={product.id} className="group rounded-2xl p-[1px] bg-gradient-to-br from-cyan-500/30 via-white/10 to-transparent">
+            <div
+              key={product.id}
+              className="group rounded-2xl p-[1px] bg-gradient-to-br from-cyan-500/30 via-white/10 to-transparent"
+            >
               <div className="relative rounded-2xl bg-gradient-to-b from-slate-900 to-black p-4 shadow-2xl h-full">
                 {/* Image */}
-              <div className="overflow-hidden rounded-[0.70rem] ring-1 ring-cyan-400/30 shadow-[0_0_20px_rgba(34,211,238,0.28),0_0_48px_rgba(34,211,238,0.18)]">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className={`w-full aspect-square object-cover transition-transform duration-500 group-hover:scale-[1.02] ${COMING_SOON ? "opacity-70" : ""}`}
-                  />
+                <div className="relative overflow-hidden rounded-[0.70rem] ring-1 ring-cyan-400/30 shadow-[0_0_20px_rgba(34,211,238,0.28),0_0_48px_rgba(34,211,238,0.18)]">
+                  <div className="w-full aspect-square">
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02] ${
+                        COMING_SOON ? "opacity-80" : ""
+                      }`}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
                   {COMING_SOON && (
                     <div className="absolute top-3 left-3">
                       <Badge tone="warning">Coming soon</Badge>
@@ -249,7 +280,7 @@ const StorePage: React.FC = () => {
                 </div>
 
                 {/* Title & price */}
-                <h2 className="text-lg font-bold text-white line-clamp-2">{product.name}</h2>
+                <h2 className="mt-4 text-lg font-bold text-white line-clamp-2">{product.name}</h2>
                 <p className="mt-1 text-cyan-400 font-semibold">{product.price}</p>
 
                 {/* CTA */}
@@ -368,14 +399,19 @@ const StorePage: React.FC = () => {
                   ✕
                 </button>
 
-                <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">Your Cart</h2>
+                <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                  Your Cart
+                </h2>
 
                 {cartItems.length === 0 ? (
                   <p className="text-gray-300">Your cart is empty.</p>
                 ) : (
                   <div className="space-y-4">
                     {cartItems.map((item, index) => (
-                      <div key={index} className="flex items-center justify-between rounded-xl bg-slate-800/60 ring-1 ring-white/10 p-3">
+                      <div
+                        key={index}
+                        className="flex items-center justify-between rounded-xl bg-slate-800/60 ring-1 ring-white/10 p-3"
+                      >
                         <div className="flex items-center gap-4">
                           <img
                             src={item.image}
@@ -407,9 +443,7 @@ const StorePage: React.FC = () => {
                     ))}
 
                     <div className="text-right mt-6">
-                      <p className="text-xl font-bold text-cyan-400">
-                        Total: {totalPrice.toFixed(2)} €
-                      </p>
+                      <p className="text-xl font-bold text-cyan-400">Total: {totalPrice.toFixed(2)} €</p>
                       <button
                         onClick={() => navigate("/checkout", { state: { cart: cartItems } })}
                         disabled={COMING_SOON}
@@ -419,9 +453,7 @@ const StorePage: React.FC = () => {
                         Go to Checkout
                       </button>
                       {COMING_SOON && (
-                        <p className="mt-2 text-xs text-gray-400">
-                          Checkout will be available when the store launches.
-                        </p>
+                        <p className="mt-2 text-xs text-gray-400">Checkout will be available when the store launches.</p>
                       )}
                     </div>
                   </div>
@@ -436,6 +468,7 @@ const StorePage: React.FC = () => {
 };
 
 export default StorePage;
+
 
 
 

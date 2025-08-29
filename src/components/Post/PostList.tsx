@@ -167,10 +167,7 @@ const PostList: React.FC = () => {
     return postComments.length + postReplies.length;
   };
 
-  const closeModal = () => {
-    setModalVisible(false);
-    window.location.reload();
-  };
+  // Removed unused closeModal function
 
   const handleScrollToTop = () => {
     window.scrollTo(0, 0);
@@ -195,175 +192,183 @@ const PostList: React.FC = () => {
     handleScrollToTop();
   };
 
-  return (
-    <div className="bg-black min-h-screen text-white font-sans px-4 py-10 w-screen">
-      <div className="w-full max-w-6xl mx-auto">
-        {/* Header */}
-        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 bg-clip-text text-transparent mb-8">
-          Posts
-        </h1>
 
-        {/* Filters & Search + Page size */}
-        <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-8">
+ return (
+  // ändra: w-screen -> w-full, justera padding, och lägg till overflow-x-hidden
+  <div className="bg-black min-h-screen text-white font-sans px-2 sm:px-4 lg:px-6 py-8 w-full overflow-x-hidden">
+    {/* ändra: behåll full bredd; ta bort onödig extra padding här så vi inte dubblar */}
+    <div className="w-full">
+      {/* Header */}
+      <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 bg-clip-text text-transparent mb-8">
+        Posts
+      </h1>
+
+      {/* Filters & Search + Page size */}
+      <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-8">
+        <select
+          id="filter-dropdown"
+          className="p-2.5 bg-slate-900 text-white border border-white/10 rounded-lg text-sm shadow-inner focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
+          value={searchType}
+          onChange={(e) => setSearchType(e.target.value)}
+        >
+          <option value="content">Content</option>
+          <option value="category">Category</option>
+          <option value="tag">Tags</option>
+        </select>
+
+        <SearchBar value={searchTerm} onSearch={handleSearch} />
+
+        <div className="ml-auto flex items-center gap-2">
+          <label htmlFor="page-size" className="text-sm text-gray-300">
+            Per page
+          </label>
           <select
-            id="filter-dropdown"
+            id="page-size"
+            value={pageSize}
+            onChange={(e) => setPageSize(Number(e.target.value))}
             className="p-2.5 bg-slate-900 text-white border border-white/10 rounded-lg text-sm shadow-inner focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
-            value={searchType}
-            onChange={(e) => setSearchType(e.target.value)}
           >
-            <option value="content">Content</option>
-            <option value="category">Category</option>
-            <option value="tag">Tags</option>
+            <option value={10}>10</option>
+            <option value={25}>25</option>
+            <option value={50}>50</option>
           </select>
-
-          <SearchBar value={searchTerm} onSearch={handleSearch} />
-
-          <div className="ml-auto flex items-center gap-2">
-            <label htmlFor="page-size" className="text-sm text-gray-300">
-              Per page
-            </label>
-            <select
-              id="page-size"
-              value={pageSize}
-              onChange={(e) => setPageSize(Number(e.target.value))}
-              className="p-2.5 bg-slate-900 text-white border border-white/10 rounded-lg text-sm shadow-inner focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
-            >
-              <option value={10}>10</option>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-            </select>
-          </div>
         </div>
+      </div>
 
-        {/* Posts Grid (current page only) */}
-        {pageItems.length === 0 ? (
-          <p className="text-gray-400">No posts found.</p>
-        ) : (
-          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {pageItems.map((post) => (
-              <li key={post.id} className="group">
-                <div className="rounded-2xl p-[1px] bg-gradient-to-br from-cyan-500/30 via-white/10 to-transparent">
-                  <div className="relative rounded-2xl bg-gradient-to-b from-slate-900 to-black p-5 shadow-2xl h-full">
-                    {/* Image */}
-                    {post.images?.[0] && (
-                      <div className="mb-4 overflow-hidden rounded-xl ring-1 ring-white/10">
+      {/* Posts Grid */}
+      {pageItems.length === 0 ? (
+        <p className="text-gray-400">No posts found.</p>
+      ) : (
+        // ändra: gör grid mer flytande upp till 4 kolumner på riktigt stora skärmar
+        <ul className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+          {pageItems.map((post) => (
+            <li key={post.id} className="group">
+              <div className="rounded-2xl p-[1px] bg-gradient-to-br from-cyan-500/30 via-white/10 to-transparent">
+                <div className="relative rounded-2xl bg-gradient-to-b from-slate-900 to-black p-5 shadow-2xl h-full">
+                  {/* ändra: använd aspect-ratio istället för fasta höjder för stabil layout */}
+                  {post.images?.[0] && (
+                    <div className="mb-4 overflow-hidden rounded-xl ring-1 ring-white/10">
+                      <div className="relative w-full aspect-[16/9]">
                         <img
                           src={post.images[0]}
                           alt={post.title}
-                          className="w-full h-48 sm:h-56 object-cover group-hover:scale-[1.02] transition-transform duration-500"
+                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
+                          loading="lazy"
+                          decoding="async"
                         />
                       </div>
-                    )}
-
-                    <h2 className="text-xl font-bold text-white mb-2 line-clamp-2">
-                      {post.title}
-                    </h2>
-
-                    <p className="text-gray-300 text-sm leading-relaxed mb-4">
-                      {getExcerpt(post.content)}
-                    </p>
-
-                    <div className="flex flex-wrap items-center gap-4 text-xs text-gray-400 mb-3">
-                      <span className="inline-flex items-center gap-1.5">
-                        <CalendarIcon className="h-4 w-4 text-cyan-400" />
-                        {formatDate(post.created_at)}
-                      </span>
-                      <span className="inline-flex items-center gap-1.5">
-                        <ChatBubbleLeftIcon className="h-4 w-4 text-cyan-400" />
-                        {getCommentCount(post.id)} comments
-                      </span>
                     </div>
+                  )}
 
-                    {post.categories?.length > 0 && (
-                      <div className="flex flex-wrap items-center gap-2 mb-2">
-                        <FolderIcon className="h-4 w-4 text-cyan-400" />
-                        <div className="flex flex-wrap gap-2">
-                          {post.categories.map((category, i) => (
-                            <Badge key={i}>{category}</Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                  <h2 className="text-xl font-bold text-white mb-2 line-clamp-2">
+                    {post.title}
+                  </h2>
 
-                    {post.tags?.length > 0 && (
-                      <div className="flex flex-wrap items-center gap-2 mb-4">
-                        <TagIcon className="h-4 w-4 text-cyan-400" />
-                        <div className="flex flex-wrap gap-2">
-                          {post.tags.map((tag, i) => (
-                            <Badge key={i}>#{tag}</Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                  <p className="text-gray-300 text-sm leading-relaxed mb-4">
+                    {getExcerpt(post.content)}
+                  </p>
 
-                    <Link
-                      to={`/post/${post.slug}`}
-                      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-cyan-600 text-white hover:bg-cyan-500 transition-colors ring-1 ring-cyan-400/30"
-                      onClick={handleScrollToTop}
-                      aria-label={`Read more about ${post.title}`}
-                    >
-                      Read more <ChevronRightIcon className="h-5 w-5" />
-                    </Link>
+                  <div className="flex flex-wrap items-center gap-4 text-xs text-gray-400 mb-3">
+                    <span className="inline-flex items-center gap-1.5">
+                      <CalendarIcon className="h-4 w-4 text-cyan-400" />
+                      {formatDate(post.created_at)}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <ChatBubbleLeftIcon className="h-4 w-4 text-cyan-400" />
+                      {getCommentCount(post.id)} comments
+                    </span>
                   </div>
+
+                  {post.categories?.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <FolderIcon className="h-4 w-4 text-cyan-400" />
+                      <div className="flex flex-wrap gap-2">
+                        {post.categories.map((category, i) => (
+                          <Badge key={i}>{category}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {post.tags?.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-2 mb-4">
+                      <TagIcon className="h-4 w-4 text-cyan-400" />
+                      <div className="flex flex-wrap gap-2">
+                        {post.tags.map((tag, i) => (
+                          <Badge key={i}>#{tag}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <Link
+                    to={`/post/${post.slug}`}
+                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-cyan-600 text-white hover:bg-cyan-500 transition-colors ring-1 ring-cyan-400/30"
+                    onClick={handleScrollToTop}
+                    aria-label={`Read more about ${post.title}`}
+                  >
+                    Read more <ChevronRightIcon className="h-5 w-5" />
+                  </Link>
                 </div>
-              </li>
-            ))}
-          </ul>
-        )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
 
-        {/* Pagination controls */}
-        {totalItems > 0 && (
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-sm text-gray-400">
-              Showing <span className="text-white">{totalItems === 0 ? 0 : startIndex + 1}</span>
-              {"–"}
-              <span className="text-white">{endIndex}</span> of{" "}
-              <span className="text-white">{totalItems}</span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => goToPage(currentPage - 1)}
-                disabled={currentPage <= 1}
-                className="px-3 py-2 rounded-lg bg-slate-900 text-white ring-1 ring-white/10 hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label="Previous page"
-              >
-                Prev
-              </button>
-              <span className="text-sm text-gray-300">
-                Page <span className="text-white">{currentPage}</span> of{" "}
-                <span className="text-white">{totalPages}</span>
-              </span>
-              <button
-                onClick={() => goToPage(currentPage + 1)}
-                disabled={currentPage >= totalPages}
-                className="px-3 py-2 rounded-lg bg-slate-900 text-white ring-1 ring-white/10 hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label="Next page"
-              >
-                Next
-              </button>
-            </div>
+      {/* Pagination */}
+      {totalItems > 0 && (
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="text-sm text-gray-400">
+            Showing <span className="text-white">{totalItems === 0 ? 0 : startIndex + 1}</span>
+            {"–"}
+            <span className="text-white">{endIndex}</span> of{" "}
+            <span className="text-white">{totalItems}</span>
           </div>
-        )}
-      </div>
 
-      {modalVisible && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/80 z-50">
-          <div className="bg-slate-900 text-white p-6 rounded-2xl shadow-2xl ring-1 ring-white/10 w-11/12 max-w-md">
-            <h2 className="text-xl font-semibold mb-3">{modalMessage}</h2>
+          <div className="flex items-center gap-2">
             <button
-              onClick={() => {
-                setModalVisible(false);
-              }}
-              className="mt-2 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-cyan-600 text-white hover:bg-cyan-500 transition-colors ring-1 ring-cyan-400/30"
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage <= 1}
+              className="px-3 py-2 rounded-lg bg-slate-900 text-white ring-1 ring-white/10 hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Previous page"
             >
-              Close
+              Prev
+            </button>
+            <span className="text-sm text-gray-300">
+              Page <span className="text-white">{currentPage}</span> of{" "}
+              <span className="text-white">{totalPages}</span>
+            </span>
+            <button
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={currentPage >= totalPages}
+              className="px-3 py-2 rounded-lg bg-slate-900 text-white ring-1 ring-white/10 hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Next page"
+            >
+              Next
             </button>
           </div>
         </div>
       )}
     </div>
-  );
+
+    {modalVisible && (
+      <div className="fixed inset-0 flex items-center justify-center bg-black/80 z-50">
+        <div className="bg-slate-900 text-white p-6 rounded-2xl shadow-2xl ring-1 ring-white/10 w-11/12 max-w-md">
+          <h2 className="text-xl font-semibold mb-3">{modalMessage}</h2>
+          <button
+            onClick={() => {
+              setModalVisible(false);
+            }}
+            className="mt-2 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-cyan-600 text-white hover:bg-cyan-500 transition-colors ring-1 ring-cyan-400/30"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    )}
+  </div>
+);
 };
 
 export default PostList;

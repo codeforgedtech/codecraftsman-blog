@@ -29,7 +29,7 @@ const Sidebar: React.FC = () => {
   const { pathname } = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // Close on route change (mobile)
+  // Close on route change (mobile/tablet)
   useEffect(() => {
     setIsSidebarOpen(false);
   }, [pathname]);
@@ -63,25 +63,37 @@ const Sidebar: React.FC = () => {
 
   return (
     <>
-      {/* Mobile hamburger */}
+      {/* Hamburger (visible below lg) */}
       <button
-        className="fixed top-4 right-4 z-[60] inline-flex items-center justify-center h-10 w-10 rounded-xl bg-cyan-600 text-white ring-1 ring-cyan-400/30 hover:bg-cyan-500 md:hidden"
+        className="fixed top-4 right-4 z-[60] inline-flex items-center justify-center h-10 w-10 rounded-xl bg-cyan-600 text-white ring-1 ring-cyan-400/30 hover:bg-cyan-500 lg:hidden"
         onClick={() => setIsSidebarOpen((s) => !s)}
         aria-label="Toggle sidebar"
         aria-expanded={isSidebarOpen}
       >
-        {isSidebarOpen ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
+        {isSidebarOpen ? (
+    <div className="pointer-events-none text-white [&_svg]:h-6 [&_svg]:w-6 [&_path]:fill-white [&_path]:stroke-white">
+      <XMarkIcon />
+    </div>
+  ) : (
+    <div className="pointer-events-none text-white [&_svg]:h-6 [&_svg]:w-6 [&_path]:fill-white [&_path]:stroke-white">
+      <Bars3Icon />
+    </div>
+  )}
       </button>
 
-      {/* Overlay */}
+      {/* Overlay (only for < lg) */}
       {isSidebarOpen && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 md:hidden" onClick={() => setIsSidebarOpen(false)} />
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 lg:hidden" onClick={() => setIsSidebarOpen(false)} />
       )}
 
       {/* Sidebar */}
       <aside
-        className={`fixed right-0 top-0 z-50 h-full w-64 p-4 transition-transform duration-300 md:relative md:left-0 md:right-auto md:translate-x-0 md:w-56 md:h-screen
-        ${isSidebarOpen ? "translate-x-0" : "translate-x-full"}`}
+        className={`shrink-0
+        fixed right-0 top-0 z-50 h-full
+        w-56 sm:w-60 md:w-64 lg:w-80 xl:w-96 p-4
+        transition-transform duration-300 lg:duration-200
+        lg:static lg:translate-x-0
+        ${isSidebarOpen ? "translate-x-0" : "translate-x-full"} lg:translate-x-0`}
         aria-label="Primary sidebar"
       >
         {/* Glass/gradient shell */}
@@ -92,12 +104,12 @@ const Sidebar: React.FC = () => {
               <img
                 src={logo}
                 alt="Logo"
-                className="h-16 w-auto object-contain drop-shadow-[0_0_10px_#22d3ee] md:drop-shadow-[0_0_16px_#22d3ee]"
+                className="w-24 sm:w-28 md:w-32 lg:w-40 xl:w-48 object-contain drop-shadow-[0_0_10px_#22d3ee] lg:drop-shadow-[0_0_16px_#22d3ee]"
               />
             </div>
 
             {/* Nav */}
-            <nav className="flex-1 overflow-y-auto">
+            <nav className="flex-1 overflow-y-auto pr-1">
               <ul className="space-y-2">
                 {NAV_ITEMS.map(({ to, label, icon: Icon, match }) => (
                   <li key={to}>
@@ -121,5 +133,8 @@ const Sidebar: React.FC = () => {
 };
 
 export default Sidebar;
+
+
+
 
 
