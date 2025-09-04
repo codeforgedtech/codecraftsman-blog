@@ -5,6 +5,7 @@ import {
   SiSoundcloud,
   SiYoutubemusic,
   SiAmazon,
+  SiBandcamp,
 } from "react-icons/si";
 import { FaDeezer } from "react-icons/fa";
 
@@ -145,6 +146,14 @@ const MusicPage = () => {
                 Icon={FaDeezer}
                 gradient="from-neutral-800 to-neutral-900"
               />
+        
+
+<PlatformTile
+  href="https://codecraftsmans.bandcamp.com/"
+  label="Bandcamp"
+  Icon={SiBandcamp}
+  gradient="from-blue-500 to-cyan-600"
+/>
               <PlatformTile
                 href="https://www.youtube.com/channel/UCkW-tg18F3brVDsT7mPZPLw"
                 label="YouTube Art Track"
@@ -171,7 +180,7 @@ const MusicPage = () => {
                 src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/2059610679&color=%23ff5500&auto_play=false"
               />
               <AlbumCard
-                title="Do Covers"
+                title="Neon Nights, Reimagined"
                 src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/2071185003&color=%23ff5500&auto_play=false"
               />
             </div>

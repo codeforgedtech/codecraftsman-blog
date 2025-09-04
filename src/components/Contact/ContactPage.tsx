@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import emailjs from "emailjs-com";
 
-// Modal component
+// ===== Hoisted components (outside ContactPage) =====
 interface ModalProps {
   isOpen: boolean;
   message: string;
@@ -36,8 +36,52 @@ const Modal = ({ isOpen, message, onClose, isSuccess }: ModalProps) => {
   );
 };
 
-const ContactPage = () => {
-  const [formData, setFormData] = useState({
+// Reusable field components — HOISTED
+export type FormDataShape = { name: string; email: string; subject: string; message: string };
+
+type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
+  label: string;
+  id: string;
+  name: keyof FormDataShape;
+};
+
+const Input: React.FC<InputProps> = ({ label, id, className, value, ...rest }) => (
+  <div>
+    <label htmlFor={id} className="block text-sm font-medium text-gray-300 mb-1">
+      {label}
+    </label>
+    <input
+      id={id}
+      value={(value as string) ?? ""}
+      className={`w-full p-3 rounded-lg bg-slate-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/60 ring-1 ring-white/10 ${className || ""}`}
+      {...rest}
+    />
+  </div>
+);
+
+type TextAreaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
+  label: string;
+  id: string;
+  name: keyof FormDataShape;
+};
+
+const TextArea: React.FC<TextAreaProps> = ({ label, id, className, value, ...rest }) => (
+  <div>
+    <label htmlFor={id} className="block text-sm font-medium text-gray-300 mb-1">
+      {label}
+    </label>
+    <textarea
+      id={id}
+      value={(value as string) ?? ""}
+      className={`w-full p-3 rounded-lg bg-slate-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/60 ring-1 ring-white/10 ${className || ""}`}
+      {...rest}
+    />
+  </div>
+);
+// ===== /hoisted components =====
+
+const ContactPage: React.FC = () => {
+  const [formData, setFormData] = useState<FormDataShape>({
     name: "",
     email: "",
     subject: "",
@@ -52,7 +96,8 @@ const ContactPage = () => {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setFormData({ ...formData, [e.target.id]: e.target.value });
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name as keyof FormDataShape]: value }));
   };
 
   const sendEmail = async (e: React.FormEvent) => {
@@ -85,34 +130,6 @@ const ContactPage = () => {
 
   const closeModal = () => setIsModalOpen(false);
 
-  const Input = (
-    props: React.InputHTMLAttributes<HTMLInputElement> & { label: string; id: string }
-  ) => (
-    <div>
-      <label htmlFor={props.id} className="block text-sm font-medium text-gray-300 mb-1">
-        {props.label}
-      </label>
-      <input
-        {...props}
-        className={`w-full p-3 rounded-lg bg-slate-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/60 ring-1 ring-white/10 ${props.className || ""}`}
-      />
-    </div>
-  );
-
-  const TextArea = (
-    props: React.TextareaHTMLAttributes<HTMLTextAreaElement> & { label: string; id: string }
-  ) => (
-    <div>
-      <label htmlFor={props.id} className="block text-sm font-medium text-gray-300 mb-1">
-        {props.label}
-      </label>
-      <textarea
-        {...props}
-        className={`w-full p-3 rounded-lg bg-slate-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/60 ring-1 ring-white/10 ${props.className || ""}`}
-      />
-    </div>
-  );
-
   return (
     <div className="bg-black min-h-screen text-white font-sans px-2 sm:px-4 lg:px-6 py-8 w-full overflow-x-hidden">
       <div className="w-full">
@@ -138,7 +155,8 @@ const ContactPage = () => {
                     value={formData.name}
                     onChange={handleChange}
                     placeholder="Your name"
-                    required
+                    name="name"
+                    autoComplete="name"
                   />
                   <Input
                     id="email"
@@ -147,7 +165,8 @@ const ContactPage = () => {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="you@example.com"
-                    required
+                    name="email"
+                    autoComplete="email"
                   />
                 </div>
                 <Input
@@ -157,7 +176,7 @@ const ContactPage = () => {
                   value={formData.subject}
                   onChange={handleChange}
                   placeholder="Subject"
-                  required
+                  name="subject"
                 />
                 <TextArea
                   id="message"
@@ -166,7 +185,7 @@ const ContactPage = () => {
                   value={formData.message}
                   onChange={handleChange}
                   placeholder="Your message"
-                  required
+                  name="message"
                 />
 
                 <button
@@ -223,6 +242,24 @@ const ContactPage = () => {
                     <span className="text-gray-200 font-medium">Discord</span>
                   </div>
                   <a href="https://discord.gg/GUDy5sxB" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300">CodeCraftsMan Server</a>
+                </li>
+
+                {/* Bandcamp */}
+                <li className="flex items-center justify-between rounded-lg bg-slate-800/60 ring-1 ring-white/10 p-3">
+                  <div className="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-teal-400" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M22 5H14L2 19h8L22 5z" />
+                    </svg>
+                    <span className="text-gray-200 font-medium">Bandcamp</span>
+                  </div>
+                  <a
+                    href="https://codecraftsmans.bandcamp.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-teal-300 hover:text-teal-200"
+                  >
+                    codecraftsmans
+                  </a>
                 </li>
 
                 {/* SoundCloud */}
@@ -327,5 +364,6 @@ const ContactPage = () => {
 };
 
 export default ContactPage;
+
 
 

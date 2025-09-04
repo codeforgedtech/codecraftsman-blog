@@ -1,6 +1,14 @@
 import React from "react";
-import { FaGooglePlay, FaGithub, FaAndroid, FaDownload } from "react-icons/fa";
+import {
+  FaGooglePlay,
+  FaGithub,
+  FaAndroid,
+  FaDownload,
+  FaLinux,
+  FaWindows,
+} from "react-icons/fa";
 
+// --- Types ---
 type Platform = {
   name: string;
   href?: string;
@@ -9,6 +17,7 @@ type Platform = {
   available: boolean; // toggle true when live
 };
 
+// --- UI bits ---
 const Badge = ({ children }: { children: React.ReactNode }) => (
   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-cyan-500/10 text-cyan-300 ring-1 ring-cyan-400/20">
     {children}
@@ -23,48 +32,53 @@ const Card = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
-// Button for each platform with available/coming-soon handling
+// --- Platform button (with Coming soon ABOVE the button) ---
 const PlatformButton = ({ p }: { p: Platform }) => {
   const base =
-    "flex items-center justify-center gap-2 px-3 py-3 rounded-xl font-semibold shadow transition-transform ring-1";
+    "flex flex-col items-center justify-center gap-2 px-3 py-3 rounded-xl font-semibold shadow transition-transform ring-1 text-center w-full";
   const enabled = `${p.classes} hover:scale-[1.03] active:scale-[0.99] text-white ring-white/10`;
-  const disabled =
-    "bg-slate-800/70 text-gray-300 cursor-not-allowed ring-white/10";
+  const disabled = "bg-slate-800/70 text-gray-300 cursor-not-allowed ring-white/10";
 
-  const content = (
+  const buttonContent = (
     <>
       {p.icon}
-      <span className="ml-1">{p.name}</span>
-      {!p.available && (
-        <span className="ml-2 text-[11px] px-2 py-0.5 rounded-full bg-black/30 text-gray-200 border border-white/10 whitespace-nowrap">
-          Coming soon
-        </span>
-      )}
+      <span>{p.name}</span>
     </>
   );
 
-  return p.available && p.href ? (
-    <a
-      href={p.href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`${base} ${enabled}`}
-      aria-label={`${p.name} – open store page`}
-    >
-      {content}
-    </a>
-  ) : (
-    <div
-      role="button"
-      aria-disabled="true"
-      className={`${base} ${disabled}`}
-      title="Not available yet"
-    >
-      {content}
+  return (
+    <div className="flex flex-col items-center w-full">
+      {!p.available && (
+        <span className="mb-2 text-[11px] px-2 py-0.5 rounded-full bg-black/30 text-gray-200 border border-white/10 whitespace-nowrap">
+          Coming soon
+        </span>
+      )}
+
+      {p.available && p.href ? (
+        <a
+          href={p.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`${base} ${enabled}`}
+          aria-label={`${p.name} – open store page`}
+        >
+          {buttonContent}
+        </a>
+      ) : (
+        <div
+          role="button"
+          aria-disabled="true"
+          className={`${base} ${disabled}`}
+          title="Not available yet"
+        >
+          {buttonContent}
+        </div>
+      )}
     </div>
   );
 };
 
+// --- Page ---
 const AppPage: React.FC = () => {
   const platforms: Platform[] = [
     {
@@ -95,6 +109,20 @@ const AppPage: React.FC = () => {
       classes: "bg-purple-700",
       available: false,
     },
+    {
+      name: "Linux",
+      href: "https://github.com/yourusername/yourapp/releases", // exempel, byt vid behov
+      icon: <FaLinux className="text-white w-5 h-5" />,
+      classes: "bg-orange-600",
+      available: false,
+    },
+    {
+      name: "Windows",
+      href: "https://github.com/yourusername/yourapp/releases", // exempel, byt vid behov
+      icon: <FaWindows className="text-white w-5 h-5" />,
+      classes: "bg-blue-600",
+      available: false,
+    },
   ];
 
   return (
@@ -116,10 +144,12 @@ const AppPage: React.FC = () => {
             <span className="text-white font-medium"> Bangolf Protocol</span> — a handy score tracker for miniature golf.
           </p>
           <p className="text-gray-300 leading-relaxed mt-3">
-            Whether you’re a developer or just curious, you’re welcome to follow along and download them when they’re ready.
+            I also make apps for <span className="font-medium text-white">Linux</span> and <span className="font-medium text-white">Windows</span>, bringing the same attention to detail across platforms.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <Badge>Android</Badge>
+            <Badge>Linux</Badge>
+            <Badge>Windows</Badge>
             <Badge>Open source (planned)</Badge>
             <Badge>Privacy-minded</Badge>
           </div>
@@ -139,8 +169,8 @@ const AppPage: React.FC = () => {
               These platforms are coming soon — check back for releases.
             </p>
 
-            {/* 1 → 2 → 4 kolumner */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            {/* Grid: 1 → 2 → 3 → 6 kolumner */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {platforms.map((p) => (
                 <PlatformButton key={p.name} p={p} />
               ))}
@@ -163,8 +193,7 @@ const AppPage: React.FC = () => {
               Join the Journey
             </h2>
             <p className="text-gray-300 leading-relaxed">
-              Explore the world of mobile development with me — from idea to publish. Whether you’re
-              building your first app or refining your stack, there’s something here for you.
+              Explore the world of mobile and desktop development with me — from idea to publish. Whether you’re building your first app or refining your stack, there’s something here for you.
             </p>
           </Card>
         </div>
@@ -174,5 +203,7 @@ const AppPage: React.FC = () => {
 };
 
 export default AppPage;
+
+
 
 
